@@ -1,0 +1,94 @@
+﻿
+@{
+    ViewData["Title"] = "素材上传";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="content-wrapper">
+    <div class="container-fluid pb-0">
+        <div class="file-loading" style="height:38px">
+            <input id="input-box" class="file" type="file" multiple data-min-file-count="1" data-theme="fas">
+        </div>
+        <button type="submit" class="btn btn-primary" onclick="upload(); return false;">上传</button>
+        <button type="reset" class="btn btn-outline-secondary" onclick="reset(); return false;">重置</button>
+        <button type="reset" class="btn btn-outline-secondary" onclick="clean(); return false;">清空无效</button>
+    </div>
+</div>
+<!-- /.content-wrapper -->
+
+@section Styles{
+    <link href="/lib/bootstrap-fileinput/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="/lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="/lib/bootstrap-fileinput/themes/explorer-fas/theme.css" media="all" rel="stylesheet" type="text/css" />
+
+    <style>
+        .file-caption {
+            height: 38px;
+        }
+
+        .file-caption-main {
+            padding-bottom: 10px;
+        }
+    </style>
+}
+
+@section Scripts{
+    <script src="/lib/bootstrap-fileinput/js/plugins/piexif.js" type="text/javascript"></script>
+    <script src="/lib/bootstrap-fileinput/js/plugins/sortable.js" type="text/javascript"></script>
+    <script src="/lib/bootstrap-fileinput/js/fileinput.min.js" type="text/javascript"></script>
+    <script src="/lib/bootstrap-fileinput/js/locales/zh.js" type="text/javascript"></script>
+    <script src="/lib/bootstrap-fileinput/themes/fas/theme.min.js" type="text/javascript"></script>
+    <script src="/lib/bootstrap-fileinput/themes/explorer-fas/theme.min.js" type="text/javascript"></script>
+
+    <script>
+        $("#input-box").fileinput({
+            showUpload: false
+            , showClose: true
+            , uploadAsync: true
+            , minFileCount: 1
+            , previewFileType: "image"
+            , allowedFileExtensions: ['webp', 'bmp', 'pcx', 'tif', 'gif', 'jpeg', 'jpg', 'tga', 'exif', 'fpx', 'svg', 'png', 'wmv', 'asf', 'asx', 'rm', 'rmvb', 'mp4', 'mov', 'm4v', 'avi', 'dat', 'mkv', 'flv', 'wav', 'flac', 'ape', 'alac', 'mp3', 'aac']
+            , uploadExtraData: {
+                
+            }
+            , uploadUrl: "./Upload/Upload"
+            //, ajaxSettings: {
+            //    timeout: 1000000,
+            //}
+            , msgUploadError: "上传失败"
+            , msgUploadEnd: "上传成功"
+            , msgUploadEmpty: "没有可供上传的文件。"
+            , msgUploadThreshold: "上传中..."
+        }).on('filebatchpreupload', function (event, data, id, index) {
+            //var n = data.files.length, files = n > 1 ? n + ' files' : 'one file';
+            //if (!window.confirm("Are you sure you want to upload " + files + "?")) {
+            //    //$('#input-box').fileinput('enable');
+            //    return {
+            //        message: "Upload aborted!",
+            //        data: {}
+            //    };
+            //}
+        }).on('fileuploaded', function (event, data, id, index) {
+            //$('#input-box').fileinput('enable');
+            var fname = data.files[index].name,
+                out = '<li>' + 'Uploaded file # ' + (index + 1) + ' - ' + fname + ' successfully.' + '</li>';
+            console.log(out);
+        }).on('fileuploaderror', function (event, data, msg) {
+            console.log('File uploaded failed.', data.previewId, data.index, data.fileId, msg);
+        });
+
+        function upload() {
+            //$('#input-box').fileinput('upload').fileinput('disable');
+            $('#input-box').fileinput('upload');
+        }
+
+        function reset() {
+            $('#input-box').fileinput('clear');
+        }
+
+        function clean() {
+            $('#input-box').fileinput('reset');
+        }
+    </script>
+}
+

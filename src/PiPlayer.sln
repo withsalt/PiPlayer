@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiPlayer", "PiPlayer\PiPlayer.csproj", "{1C6FB60E-A886-4991-9CFB-45593CFD5E75}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiPlayer.AspNetCore.FFMpeg", "PiPlayer.AspNetCore.FFMpeg\PiPlayer.AspNetCore.FFMpeg.csproj", "{268E0D60-E488-4CE9-913C-0D074A7E4F40}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1C6FB60E-A886-4991-9CFB-45593CFD5E75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C6FB60E-A886-4991-9CFB-45593CFD5E75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C6FB60E-A886-4991-9CFB-45593CFD5E75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C6FB60E-A886-4991-9CFB-45593CFD5E75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{268E0D60-E488-4CE9-913C-0D074A7E4F40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{268E0D60-E488-4CE9-913C-0D074A7E4F40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{268E0D60-E488-4CE9-913C-0D074A7E4F40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{268E0D60-E488-4CE9-913C-0D074A7E4F40}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AEF19073-386B-4361-8748-620729412690}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,419 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Askbootstrap">
+    <meta name="author" content="Askbootstrap">
+    <title>@ViewData["Title"] - 播放控制中心</title>
+    <!-- Favicon Icon -->
+    <link rel="icon" type="image/png" href="~/assets/img/favicon.png">
+    <!-- Bootstrap core CSS-->
+    <link href="~/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom fonts for this template-->
+    <link href="~/lib/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <!-- Custom styles for this template-->
+    <link href="~/assets/css/osahan.css" rel="stylesheet">
+    <!-- Owl Carousel -->
+    <link rel="stylesheet" href="~/lib/owl-carousel/owl.carousel.css">
+    <link rel="stylesheet" href="~/lib/owl-carousel/owl.theme.css">
+    <style>
+        .spilt-line {
+            float: left;
+            margin-top: 13px;
+            width: 1px;
+            height: 15px;
+            background: darkgray;
+            padding-top: 12px;
+            padding-bottom: 15px;
+            opacity: 0.4;
+        }
+    </style>
+    @RenderSection("Styles", required: false)
+</head>
+<body id="page-top" class="sidebar-toggled">
+    <nav class="navbar navbar-expand navbar-light bg-white static-top osahan-nav sticky-top">
+        &nbsp;&nbsp;
+        <button class="btn btn-link btn-sm text-secondary order-1 order-sm-0" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button> &nbsp;&nbsp;
+        <a class="navbar-brand mr-1" href="@Url.Action("Index","Video")"><img class="img-fluid" alt="" src="~/assets/img/logo.png"></a>
+        <!-- Navbar Search -->
+        <div class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-5 my-2 my-md-0 osahan-navbar-search">
+        </div>
+        <!-- Navbar -->
+        <ul class="navbar-nav ml-auto ml-md-0 osahan-right-navbar">
+            <li class="nav-item mx-1">
+                <a class="nav-link" href="@Url.Action("Index","Upload")">
+                    <i class="fas fa-plus-circle fa-fw"></i>
+                    上传
+                </a>
+            </li>
+            <li>
+                <div class="spilt-line"></div>
+            </li>
+            <li class="nav-item dropdown no-arrow mx-1">
+                <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-fw fa-box"></i>
+                    <span class="badge badge-danger" id="seq-count">0</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="alertsDropdown">
+                    <a class="dropdown-item" href="javascript:void(0);" onclick="playList();"><i class="fas fa-fw fa-play "></i> &nbsp; 播放序列</a>
+                    <a class="dropdown-item" href="javascript:void(0);" onclick="cleanPlayList();"><i class="fas fa-fw fa-trash "></i> &nbsp; 清空序列</a>
+                    <div class="dropdown-divider" id="playList"></div>
+                </div>
+            </li>
+            <li class="nav-item dropdown no-arrow osahan-right-navbar-user">
+                <a class="nav-link dropdown-toggle user-dropdown-link" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <img alt="Avatar" src="~/assets/img/user.png">
+                    PiPlayer
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                    <a class="dropdown-item" href="javascript:void(0);" onclick="status();"><i class="fas fa-fw fa-check"></i> &nbsp; 依赖检查</a>
+                    <a class="dropdown-item" href="javascript:void(0);" onclick="stop();"><i class="fas fa-fw fa-stop"></i> &nbsp; 停止播放</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="javascript:void(0);" onclick="reboot();"><i class="fas fa-fw fa-sign-out-alt"></i> &nbsp; 重启系统</a>
+                    <a class="dropdown-item" href="javascript:void(0);" onclick="shutdown();"><i class="fas fa-fw fa-power-off"></i> &nbsp; 关闭系统</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <ul class="sidebar navbar-nav toggled" id="navbar-nav">
+            <li class="nav-item" id="main-nav">
+                <a class="nav-link" href="@Url.Action("Index","Video")">
+                    <i class="fas fa-fw fa-video"></i>
+                    <span>视频</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("Index","Images")">
+                    <i class="fas fa-fw fa-image"></i>
+                    <span>图片</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("Index","Audio")">
+                    <i class="fas fa-fw fa-file-audio"></i>
+                    <span>音频</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("Index","Upload")">
+                    <i class="fas fa-fw fa-upload"></i>
+                    <span>上传</span>
+                </a>
+            </li>
+        </ul>
+        <div id="content-wrapper">
+            @RenderBody()
+            <!-- /.container-fluid -->
+        </div>
+        <!-- /.content-wrapper -->
+    </div>
+    <!-- /#wrapper -->
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+    <!-- Bootstrap core JavaScript-->
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/jquery/jquery.cookie-1.4.1.min.js"></script>
+    <script src="~/lib/layer/layer.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="~/lib/jquery-easing/jquery.easing.min.js"></script>
+    <!-- Owl Carousel -->
+    <script src="~/lib/owl-carousel/owl.carousel.js"></script>
+    <!-- Custom scripts for all pages-->
+    <script src="~/assets/js/custom.js"></script>
+    <script type="text/javascript">
+        setNavbar();
+        buildPlayList();
+
+        function setNavbar() {
+            let url = window.location.href.toLocaleLowerCase();
+            let pathName = window.location.pathname.toLocaleLowerCase();
+            if (pathName == null || pathName.length == 0 || pathName == "/") {
+                $("#main-nav").addClass("active");
+                return;
+            }
+
+            $('#navbar-nav li').each(function (i, n) {
+                $(this).removeClass("active");
+                var href = $(this).find("a").attr("href");
+                if (href != null && href.length > 0 && href != "/") {
+                    href = href.toLocaleLowerCase();
+                    //包含url
+                    if (url.indexOf(href) != -1) {
+                        $(this).addClass("active");
+                    }
+                }
+            });
+        }
+
+        function clickPlayItem(obj, id, name) {
+            function remove(arr, value) {
+                return arr.filter(function (ele) {
+                    return ele != value;
+                });
+            }
+            if (id == null || id.length == 0) {
+                layer.msg('从序列中删除失败，文件ID不能为空。', { icon: 5 });
+                return;
+            }
+            layer.confirm('确认从序列中删除“' + name + '”吗？', {
+                btn: ['确认', '取消']
+            }, function (index) {
+                layer.close(index);
+                delPlayItem(id);
+            }, function (index) {
+                layer.close(index);
+                return;
+            });
+        }
+
+        function delPlayItem(id) {
+            var items = getPlayList();
+            if (items == null || items.length == 0) {
+                return;
+            }
+            var newItems = [];
+            var isDelete = false;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].id == id) {
+                    isDelete = true;
+                }
+                else {
+                    newItems.push(items[i]);
+                }
+            }
+            if (isDelete) {
+                var jsonStr = JSON.stringify(newItems);
+                $.cookie('playarray', jsonStr, { expires: 7, path: '/' });
+                buildPlayList();
+            }
+        }
+
+        function getPlayList() {
+            var items = [];
+            var cookieVal = $.cookie('playarray');
+            if (cookieVal == null || cookieVal.length == 0) {
+                return items;
+            }
+            var obj = JSON.parse(cookieVal);
+            if (obj != null && obj.length > 0) {
+                for (var i = 0; i < obj.length; i++) {
+                    items.push(obj[i]);
+                }
+            }
+            return items;
+        }
+
+        function buildPlayList() {
+            //先移除
+            $("a[name='seq-item']").remove();
+
+            var items = getPlayList();
+            if (items == null || items.length == 0) {
+                $("#seq-count").html(0);
+                return;
+            }
+            $("#seq-count").html(items.length);
+            var baseNode = $("#playList");
+            for (var i = 0; i < items.length; i++) {
+                var typeIcon = "fa-file";
+                if (items[i].type == "Video") {
+                    typeIcon = "fa-file-video";
+                }
+                else if (items[i].type == "Image") {
+                    typeIcon = "fa-image";
+                }
+                else if (items[i].type == "Music") {
+                    typeIcon = "fa-music";
+                }
+                var itemVal = "<a class=\"dropdown-item\" name=\"seq-item\" id=\"sql-item-" + items[i].id + "\" href=\"javascript:void(0);\"  onclick=\"clickPlayItem(this,'" + items[i].id + "','" + items[i].name + "')\"><i class=\"fas fa-fw " + typeIcon + " \"></i> &nbsp; " + items[i].name + "</a>";
+                baseNode.after(itemVal);
+            }
+        }
+
+        function cleanPlayList() {
+            var items = getPlayList();
+            if (items == null || items.length == 0) {
+                $("#seq-count").html(0);
+                return;
+            }
+            layer.confirm('确认清空当前播放序列吗？', {
+                btn: ['确认', '取消']
+            }, function (index) {
+                layer.close(index);
+                cleanPlayListWithoutConfirm();
+            }, function (index) {
+                layer.close(index);
+                return;
+            });
+        }
+
+        function cleanPlayListWithoutConfirm() {
+            var jsonStr = JSON.stringify([]);
+            $.cookie('playarray', jsonStr, { expires: 7, path: '/' });
+            $("a[name='seq-item']").remove();
+            $("#seq-count").html(0);
+        }
+
+        function playList() {
+            var items = getPlayList();
+            if (items == null || items.length == 0) {
+                layer.msg('播放序列为空', function () { });
+            }
+            layer.confirm('确认播放当前序列吗？', {
+                btn: ['确认', '取消']
+            }, function (index) {
+                layer.close(index);
+                var loadIndex = layer.load(2, {
+                    timeout: 300000
+                });
+                $.ajax({
+                    type: "post",
+                    url: "/Control/PlayQueue",
+                    data: {
+                        "items": items
+                    },
+                    cache: false,
+                    dataType: 'json', // 返回对象
+                    success: function (data) {
+                        layer.close(loadIndex);
+                        if (data.Code == 0) {
+                            cleanPlayListWithoutConfirm();
+                            layer.msg('播放序列成功');
+                        }
+                        else {
+                            layer.msg('播放序列失败，错误：' + data.Message, { icon: 5 });
+                        }
+                    },
+                    error: function (data) {
+                        layer.close(loadIndex);
+                        layer.msg('播放序列失败，错误：请求失败。', { icon: 5 });
+                    }
+                })
+            }, function (index) {
+                layer.close(index);
+                return;
+            });
+        }
+
+        function stop() {
+            layer.confirm('确认停止播放吗？', {
+                btn: ['确认', '取消']
+            }, function (index) {
+                layer.close(index);
+                $.ajax({
+                    type: "post",
+                    url: "/Control/Stop",
+                    cache: false,
+                    dataType: 'json', // 返回对象
+                    success: function (data) {
+                        if (data.Code == 0) {
+                            layer.msg('已停止', { icon: 6 });
+                        }
+                        else {
+                            layer.msg('停止失败，错误：' + data.Message, { icon: 5 });
+                        }
+                    },
+                    error: function (data) {
+                        layer.close(loadIndex);
+                        layer.msg('停止失败，错误：请求失败。', { icon: 5 });
+                    }
+                });
+            }, function (index) {
+                layer.close(index);
+                return;
+            });
+        }
+
+        function status() {
+            $.ajax({
+                type: "post",
+                url: "/Control/Status",
+                cache: false,
+                dataType: 'json', // 返回对象
+                success: function (data) {
+                    if (data.Code == 0) {
+                        layer.alert(data.Message, { icon: 6 });
+                    }
+                    else {
+                        layer.alert(data.Message, { icon: 5 });
+                    }
+                },
+                error: function (data) {
+                    layer.close(loadIndex);
+                    layer.msg('获取依赖信息失败，错误：请求失败。', { icon: 5 });
+                }
+            });
+        }
+
+        function reboot() {
+            layer.confirm('确认重启系统吗？', {
+                btn: ['确认', '取消']
+            }, function (index) {
+                layer.close(index);
+                $.ajax({
+                    type: "post",
+                    url: "/Control/Reboot",
+                    cache: false,
+                    dataType: 'json', // 返回对象
+                    success: function (data) {
+                        if (data.Code == 0) {
+                            layer.msg('正在重启...', { icon: 6 });
+                        }
+                        else {
+                            layer.msg('重启失败，错误：' + data.Message, { icon: 5 });
+                        }
+                    },
+                    error: function (data) {
+                        layer.close(loadIndex);
+                        layer.msg('重启失败，错误：请求失败。', { icon: 5 });
+                    }
+                });
+            }, function (index) {
+                layer.close(index);
+                return;
+            });
+        }
+
+        function shutdown() {
+            layer.confirm('确认关闭系统吗？', {
+                btn: ['确认', '取消']
+            }, function (index) {
+                layer.close(index);
+                $.ajax({
+                    type: "post",
+                    url: "/Control/Shutdown",
+                    cache: false,
+                    dataType: 'json', // 返回对象
+                    success: function (data) {
+                        if (data.Code == 0) {
+                            layer.msg('正在关机...', { icon: 6 });
+                        }
+                        else {
+                            layer.msg('关机失败，错误：' + data.Message, { icon: 5 });
+                        }
+                    },
+                    error: function (data) {
+                        layer.close(loadIndex);
+                        layer.msg('关机失败，错误：请求失败。', { icon: 5 });
+                    }
+                });
+            }, function (index) {
+                layer.close(index);
+                return;
+            });
+        }
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

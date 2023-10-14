@@ -1,0 +1,323 @@
+﻿@model PiPlayer.Models.ViewModels.Videos.VideoPageViewModel
+@{
+    ViewData["Title"] = "图片";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid pb-0">
+    <div class="top-mobile-search">
+        <div class="row">
+            <div class="col-md-12">
+                <form class="mobile-search">
+                    <div class="input-group">
+                        <input type="text" placeholder="Search for..." class="form-control">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-dark"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="video-block section-padding" id="item-box">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="main-title">
+                    <div class="btn-group float-right right-action">
+                        <a href="#" class="right-action-link text-gray" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            排序方式 <i class="fa fa-caret-down" aria-hidden="true"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="#"><i class="fas fa-fw fa-star"></i> &nbsp; 上传时间</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-fw fa-signal"></i> &nbsp; 播放量</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-fw fa-times-circle"></i> &nbsp; 取消</a>
+                        </div>
+                    </div>
+                    <h6>@ViewData["Title"]列表</h6>
+                </div>
+            </div>
+            @if (Model.Medium.Count == 0)
+            {
+                <div style="text-align:center;font-size:23px;margin:30px auto">
+                    Oh~这里什么内容都没有~
+                </div>
+            }
+            else
+            {
+                foreach (var item in Model.Medium)
+                {
+                    <div class="col-xl-3 col-sm-6 mb-3" id="file-card-@item.Id">
+                        <div class="video-card">
+                            <div class="video-card-image">
+                                <a class="play-icon" href="javascript:void(0);" onclick="play('@item.Id', '@item.FileType.ToString()', '@(System.IO.Path.GetFileNameWithoutExtension(item.FileOldName))');"><i class="fas fa-play-circle"></i></a>
+                                <a href="javascript:void(0);"><img class="img-fluid" src="@item.LogoUrl" alt=""></a>
+   
+                            </div>
+                            <div class="video-card-body">
+                                <div class="video-title">
+                                    <a href="#">@(System.IO.Path.GetFileNameWithoutExtension(item.FileOldName))</a>
+                                </div>
+                                <div class="video-page text-success">
+                                    @item.Extension.Trim('.').ToUpper() <a title="" data-placement="top" data-toggle="tooltip" href="#" data-original-title="Verified">
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    </a>
+                                </div>
+                                <div class="video-view">
+                                    <i class="fas fa-calendar-alt"></i> @item.CreatedTime?.ToShortDateString()
+                                    <div class="btn-group float-right right-action">
+                                        <a href="#" class="right-action-link text-gray" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item" href="javascript:void(0);" onclick="view('@item.Id', '@item.FileType.ToString()','@(System.IO.Path.GetFileNameWithoutExtension(item.FileOldName))');"><i class="fas fa-fw fa-star"></i> &nbsp; 预览</a>
+                                            <a class="dropdown-item" href="javascript:void(0);" onclick="addseq('@item.Id', '@(System.IO.Path.GetFileNameWithoutExtension(item.FileOldName))','@item.FileType.ToString()');"><i class="fas fa-fw fa-signal"></i> &nbsp; 添加到序列</a>
+                                            <a class="dropdown-item" href="javascript:void(0);" onclick="del('@item.Id');"><i class="fas fa-fw fa-times-circle"></i> &nbsp; 删除</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        var delUrl = "/Upload/Delete";
+        var playUrl = "/Control/Play";
+
+        function ispc() {
+            var isMobile = {
+                Android: function () {
+                    return navigator.userAgent.match(/Android/i) ? true : false;
+                },
+                BlackBerry: function () {
+                    return navigator.userAgent.match(/BlackBerry/i) ? true : false;
+                },
+                iOS: function () {
+                    return navigator.userAgent.match(/iPhone|iPad|iPod/i) ? true : false;
+                },
+                Windows: function () {
+                    return navigator.userAgent.match(/IEMobile/i) ? true : false;
+                },
+                any: function () {
+                    return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS()
+                        || isMobile.Windows());
+                }
+            };
+
+            return !isMobile.any()
+        }
+
+        function del(id) {
+            if (id == null || id.length == 0) {
+                layer.msg('删除失败，文件ID不能为空。', { icon: 5 });
+                return;
+            }
+            layer.confirm('确认删除当前条目吗？', {
+                btn: ['确认', '取消'] //按钮
+            }, function (index) {
+                layer.close(index);
+                var loadIndex = layer.load(2, {
+                    timeout: 300000
+                });
+                $.ajax({
+                    type: "post",
+                    url: delUrl,
+                    data: {
+                        "id": id
+                    },
+                    cache: false,
+                    dataType: 'json', // 返回对象
+                    success: function (data) {
+                        layer.close(loadIndex);
+                        if (data.Code == 0) {
+                            $("#file-card-" + id).remove();
+                            var itemLength = $("#item-box").find('[id^=file-card-]').length;
+                            if (itemLength == 0) {
+                                $("#item-box").append("<div style=\"text-align:center;font-size:23px;margin-top:30px auto\">Oh~这里什么内容都没有~</div>");
+                            }
+                            delPlayItem(id);
+                            layer.msg('删除成功');
+                        }
+                        else {
+                            layer.msg('删除失败，错误：' + data.Message, { icon: 5 });
+                        }
+                    },
+                    error: function (data) {
+                        layer.close(loadIndex);
+                        layer.msg('删除失败，错误：请求失败。', { icon: 5 });
+                    }
+                })
+            }, function (index) {
+                layer.close(index);
+                return;
+            });
+        }
+
+        function play(id, type, name) {
+            if (id == null || id.length == 0) {
+                layer.msg('播放失败，文件ID不能为空。', { icon: 5 });
+                return;
+            }
+            layer.confirm('确认播放“' + name + '”吗？', {
+                btn: ['确认', '取消'] //按钮
+            }, function (index) {
+                layer.close(index);
+                if (type == "Music") {
+                    layer.msg('播放失败，暂不支持播放音频。', { icon: 5 });
+                    return;
+                }
+                var loadIndex = layer.load(2, {
+                    timeout: 300000
+                });
+                $.ajax({
+                    type: "post",
+                    url: playUrl,
+                    data: {
+                        "id": id
+                    },
+                    cache: false,
+                    dataType: 'json', // 返回对象
+                    success: function (data) {
+                        layer.close(loadIndex);
+                        if (data.Code == 0) {
+                            layer.msg('已开始播放');
+                        }
+                        else {
+                            layer.msg('播放失败，错误：' + data.Message, { icon: 5 });
+                        }
+                    },
+                    error: function (data) {
+                        layer.close(loadIndex);
+                        layer.msg('播放失败，错误：请求失败。', { icon: 5 });
+                    }
+                })
+            }, function (index) {
+                layer.close(index);
+                return;
+            });
+        }
+
+        function view(id, type, name) {
+            if (id == null || id.length == 0) {
+                layer.msg('预览失败，文件ID不能为空。', { icon: 5 });
+                return;
+            }
+            if (type == null || type.length == 0) {
+                layer.msg('预览失败，未知的文件类型。', { icon: 5 });
+                return;
+            }
+            if (type == "Video") {
+                layer.open({
+                    type: 2,
+                    title: "视频预览",
+                    area: ['768px', '580px'],
+                    shade: 0,
+                    closeBtn: 1,
+                    shadeClose: false,
+                    maxmin: true,
+                    resize: true,
+                    content: '/Video/Play?id=' + id,
+                    success: function (layero, index) {
+                        if (ispc()) {
+
+                        }
+                        else {
+                            layer.full(index);
+                        }
+                    }, resizing: function (layero) {
+                        var height = $(layero).height();
+                        var layeroIdStr = $(layero).attr("id");
+                        if (layeroIdStr != null && layeroIdStr.length > 0) {
+                            var index = layeroIdStr.replace("layui-layer", "");
+                            console.log(index);
+                            $("#layui-layer-iframe" + index).height(height - 45);
+                        }
+                    }, full: function (layero) {
+                        var height = $(layero).height();
+                        var layeroIdStr = $(layero).attr("id");
+                        if (layeroIdStr != null && layeroIdStr.length > 0) {
+                            var index = layeroIdStr.replace("layui-layer", "");
+                            $("#layui-layer-iframe" + index).height(height - 45);
+                        }
+                    }, restore: function (layero) {
+                        var height = $(layero).height();
+                        var layeroIdStr = $(layero).attr("id");
+                        if (layeroIdStr != null && layeroIdStr.length > 0) {
+                            var index = layeroIdStr.replace("layui-layer", "");
+                            $("#layui-layer-iframe" + index).height(height - 45);
+                        }
+                    }
+                });
+            }
+            else if (type == "Music") {
+                layer.open({
+                    type: 2,
+                    title: "音频预览",
+                    area: ['315px', '300px'],
+                    shade: 0,
+                    closeBtn: 1,
+                    shadeClose: false,
+                    maxmin: false,
+                    resize: false,
+                    content: ['/Video/Play?id=' + id, 'no'],
+                    success: function (layero, index) {
+                    }
+                });
+            }
+            else if (type == "Image") {
+                var data = {
+                    "title": "查看" + name,
+                    "id": 123,
+                    "start": 0,
+                    "data": [
+                        {
+                            "alt": name,
+                            "pid": id,
+                            "src": "/Download?id=" + id,
+                            "thumb": ""
+                        }
+                    ]
+                }
+                layer.photos({
+                    photos: data
+                    , anim: 5
+                });
+            }
+        }
+
+        function addseq(id, name, type) {
+            if (id == null || id.length == 0) {
+                layer.msg('添加到序列失败，文件ID不能为空。', { icon: 5 });
+                return;
+            }
+            if (name == null || name.length == 0) {
+                layer.msg('添加到序列失败，文件名称不能为空。', { icon: 5 });
+                return;
+            }
+
+            var items = getPlayList();
+            if (items != null && items.length > 0) {
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].id == id) {
+                        layer.msg('当前条目已在序列当中');
+                        return;
+                    }
+                }
+                items.push({ "id": id, "name": name, "type": type });
+            }
+            else {
+                items.push({ "id": id, "name": name, "type": type });
+            }
+
+            var jsonStr = JSON.stringify(items);
+            $.cookie('playarray', jsonStr, { expires: 7, path: '/' });
+            buildPlayList();
+            layer.msg('添加到序列成功');
+        }
+    </script>
+}

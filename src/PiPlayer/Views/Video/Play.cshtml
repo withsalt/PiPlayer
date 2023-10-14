@@ -1,0 +1,52 @@
+﻿@model PiPlayer.Models.ViewModels.Videos.VideoPlayViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>视频预览</title>
+    <link href="~/lib/video-player/css/px-video.css" media="all" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <div id="wrapper">
+        <div class="px-video-container" id="myvid">
+            <div class="px-video-img-captions-container">
+                <div class="px-video-captions hide"></div>
+                <div class="px-video-wrapper">
+                    <video poster="@Model.VideoFileInfo.LogoPath" class="px-video" controls>
+                        <!-- video files -->
+                        <source src="@Model.VideoFileInfo.FileSource" type="@Model.VideoFileInfo.ContentType" />
+                        <!-- fallback for browsers that don't support the video element -->
+                        <div>
+                            <a href="@Model.VideoFileInfo.FileSource">
+                                <img src="@Model.VideoFileInfo.LogoPath" alt="Download" />
+                            </a>
+                        </div>
+                    </video>
+                </div>
+            </div>
+            <div class="px-video-controls"></div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/jquery/jquery.cookie-1.4.1.min.js"></script>
+    <script src="~/lib/layer/layer.js"></script>
+    <script src="~/lib/video-player/js/strings.js"></script>
+    <script src="~/lib/video-player/js/px-video.js"></script>
+    <script>
+        new InitPxVideo({
+            "videoId": "myvid",
+            "captionsOnDefault": true,
+            "seekInterval": 20,
+            "videoTitle": "clips of stand-up comedy",
+            "debug": true
+        });
+
+    </script>
+</body>
+</html>
