@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "素材上传";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -15,7 +14,6 @@
     </div>
 </div>
 <!-- /.content-wrapper -->
-
 @section Styles{
     <link href="/lib/bootstrap-fileinput/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
     <link href="/lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all" rel="stylesheet" type="text/css" />
@@ -49,7 +47,7 @@
             , previewFileType: "image"
             , allowedFileExtensions: ['webp', 'bmp', 'pcx', 'tif', 'gif', 'jpeg', 'jpg', 'tga', 'exif', 'fpx', 'svg', 'png', 'wmv', 'asf', 'asx', 'rm', 'rmvb', 'mp4', 'mov', 'm4v', 'avi', 'dat', 'mkv', 'flv', 'wav', 'flac', 'ape', 'alac', 'mp3', 'aac']
             , uploadExtraData: {
-                
+
             }
             , uploadUrl: "./Upload/Upload"
             //, ajaxSettings: {
@@ -69,10 +67,10 @@
             //    };
             //}
         }).on('fileuploaded', function (event, data, id, index) {
-            //$('#input-box').fileinput('enable');
-            var fname = data.files[index].name,
-                out = '<li>' + 'Uploaded file # ' + (index + 1) + ' - ' + fname + ' successfully.' + '</li>';
-            console.log(out);
+            if (data.files.length > index && data.files[index] && data.files[index].name) {
+                var fname = data.files[index].name;
+                console.log('Uploaded file # ' + (index + 1) + ' - ' + fname + ' successfully.');
+            }
         }).on('fileuploaderror', function (event, data, msg) {
             console.log('File uploaded failed.', data.previewId, data.index, data.fileId, msg);
         });
