@@ -56,9 +56,8 @@ namespace PiPlayer.Controllers
                         Content = "当前文件不存在。"
                     };
                 }
-                string contentType = "application/octet-stream";
                 string fileName = Path.GetFileName(path);
-                if (!new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType))
+                if (!new FileExtensionContentTypeProvider().TryGetContentType(fileName, out string contentType))
                 {
                     contentType = "application/octet-stream";
                 }

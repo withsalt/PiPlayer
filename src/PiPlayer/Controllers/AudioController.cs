@@ -5,6 +5,7 @@ using PiPlayer.Models.Entities;
 using PiPlayer.Models.Enums;
 using PiPlayer.Models.ViewModels.Videos;
 using PiPlayer.Repository.Interface;
+using PiPlayer.Utils;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -34,12 +35,9 @@ namespace PiPlayer.Controllers
             {
                 return View(vm);
             }
-            string hostUrl = Request.Host.Value;
-
-            string baseHost = $"{Request.Scheme}://{Request.Host}/";
             foreach (var item in materials)
             {
-                item.LogoUrl = baseHost + item.LogoUrl;
+                item.LogoUrl = UrlPath.Combine(Request, item.LogoUrl);
             }
             vm.Medium = materials;
             return View(vm);

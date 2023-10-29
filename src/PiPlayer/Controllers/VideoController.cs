@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
 using PiPlayer.Configs;
+using PiPlayer.Extensions;
 using PiPlayer.Models.Common;
 using PiPlayer.Models.Common.JsonObject;
 using PiPlayer.Models.Entities;
@@ -11,6 +12,7 @@ using PiPlayer.Models.Enums;
 using PiPlayer.Models.ViewModels.Response.FileUpload;
 using PiPlayer.Models.ViewModels.Videos;
 using PiPlayer.Repository.Interface;
+using PiPlayer.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -43,12 +45,9 @@ namespace PiPlayer.Controllers
             {
                 return View(vm);
             }
-            string hostUrl = Request.Host.Value;
-
-            string baseHost = $"{Request.Scheme}://{Request.Host}/";
             foreach (var item in materials)
             {
-                item.LogoUrl = baseHost + item.LogoUrl;
+                item.LogoUrl = UrlPath.Combine(Request, item.LogoUrl);
             }
             vm.Medium = materials;
             return View(vm);
@@ -66,17 +65,13 @@ namespace PiPlayer.Controllers
             {
                 return Json(new ResultModel<IChild>(10033, "查找文件信息失败。"));
             }
-            string baseHost = $"{Request.Scheme}://{Request.Host}/";
-            item.LogoUrl = baseHost + item.LogoUrl;
-            item.FileUrl = baseHost + item.Path.Replace('\\', '/');
-
-            string contentType = "application/octet-stream";
+            item.LogoUrl = UrlPath.Combine(Request, item.LogoUrl);
+            item.FileUrl = UrlPath.Combine(Request, item.Path);
             string fileName = Path.GetFileName(item.FileOldName);
-            if (!new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType))
+            if (!new FileExtensionContentTypeProvider().TryGetContentType(fileName, out string contentType))
             {
                 contentType = "application/octet-stream";
             }
-
             VideoPlayViewModel vm = new VideoPlayViewModel()
             {
                 VideoFileInfo = new FileInfoResult()
