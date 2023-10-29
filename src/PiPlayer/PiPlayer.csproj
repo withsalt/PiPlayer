@@ -10,15 +10,15 @@
 		<PackageReference Include="AutoMapper" Version="12.0.1" />
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
 		<PackageReference Include="CliWrap" Version="3.6.4" />
-		<PackageReference Include="NLog.Web.AspNetCore" Version="5.3.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.12" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.12" />
+		<PackageReference Include="NLog.Web.AspNetCore" Version="5.3.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.13" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.13" />
 		<PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
 		<PackageReference Include="OnceMi.AspNetCore.IdGenerator" Version="1.0.6" />
 		<PackageReference Include="IdleBus" Version="1.5.3" />
-		<PackageReference Include="FreeSql" Version="3.2.801" />
-		<PackageReference Include="FreeSql.Repository" Version="3.2.801" />
-		<PackageReference Include="FreeSql.Provider.Sqlite" Version="3.2.801" />
+		<PackageReference Include="FreeSql" Version="3.2.802" />
+		<PackageReference Include="FreeSql.Repository" Version="3.2.802" />
+		<PackageReference Include="FreeSql.Provider.Sqlite" Version="3.2.802" />
 		<PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
 	</ItemGroup>
 
