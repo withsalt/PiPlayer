@@ -48,7 +48,7 @@ namespace PiPlayer.Services
             try
             {
                 await Stop();
-                StartPlayingTask(GenerateCommandItem(new List<Media>() { media }));
+                StartPlayingTask(GenerateCommandItem(media));
                 return (true, "Success");
             }
             catch (Exception ex)
@@ -100,6 +100,10 @@ namespace PiPlayer.Services
             return Task.CompletedTask;
         }
 
+        private List<CommandItem> GenerateCommandItem(Media media)
+        {
+            return GenerateCommandItem(new List<Media>() { media });
+        }
 
         private List<CommandItem> GenerateCommandItem(IEnumerable<Media> medium)
         {
@@ -112,7 +116,7 @@ namespace PiPlayer.Services
 
         private CommandItem GeneratePlayCommand(IEnumerable<Media> medium)
         {
-            CommandItem commandItem = new CommandItem();
+            CommandItem commandItem = new CommandItem(medium);
 
             StringBuilder argsBuilder = new StringBuilder();
             foreach (var item in medium)

@@ -7,7 +7,12 @@ namespace PiPlayer.Models.Common
 {
     public class CommandItem
     {
-        public List<Media> Medium { get; set; } = new List<Media>();
+        public CommandItem(IEnumerable<Media> medium)
+        {
+            this.Medium = medium;
+        }
+
+        public IEnumerable<Media> Medium { get; set; } = new List<Media>();
 
         public Command Command { get; set; }
 
