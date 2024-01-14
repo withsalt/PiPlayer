@@ -79,6 +79,15 @@ namespace PiPlayer.AspNetCore.FFMpeg
                         libVersion.Version = output.Substring(startIndex - 1, lastIndex - startIndex + 1);
                     }
                 }
+                if (output.StartsWith("mpv ", StringComparison.Ordinal) && output.Contains("Copyright"))
+                {
+                    int startIndex = "mpv ".Length;
+                    var lastIndex = output.IndexOf(' ', startIndex);
+                    if (lastIndex > startIndex + 1)
+                    {
+                        libVersion.Version = output.Substring(startIndex - 1, lastIndex - startIndex + 1);
+                    }
+                }
                 return libVersion;
             }
             catch (Exception ex)

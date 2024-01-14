@@ -1,8 +1,6 @@
 ﻿using FreeSql;
+using Microsoft.Data.Sqlite;
 using System;
-using System.Data;
-using System.Data.SqlClient;
-using System.Data.SQLite;
 using System.IO;
 using System.Reflection;
 
@@ -63,7 +61,7 @@ namespace PiPlayer.DependencyInjection.Extensions
         public static FreeSqlBuilder CreateDatabaseIfNotExistsSqlite(this FreeSqlBuilder @this,
             string connectionString = "")
         {
-            SQLiteConnectionStringBuilder builder = new SQLiteConnectionStringBuilder(connectionString);
+            SqliteConnectionStringBuilder builder = new SqliteConnectionStringBuilder(connectionString);
             FileInfo file = new FileInfo(builder.DataSource);
             if (file.Exists)
             {

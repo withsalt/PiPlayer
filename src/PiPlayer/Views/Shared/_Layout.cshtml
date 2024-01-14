@@ -335,12 +335,16 @@
         }
 
         function status() {
+            var loadIndex = layer.load(2, {
+                timeout: 300000
+            });
             $.ajax({
                 type: "post",
                 url: "/Control/Status",
                 cache: false,
                 dataType: 'json', // 返回对象
                 success: function (data) {
+                    layer.close(loadIndex);
                     if (data.Code == 0) {
                         layer.alert(data.Message, { icon: 6 });
                     }
