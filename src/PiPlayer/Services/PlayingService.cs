@@ -134,6 +134,8 @@ namespace PiPlayer.Services
             argsBuilder.AppendWithSpace("--force-window=yes");
             argsBuilder.AppendWithSpace("--ontop");
 
+            //禁用默认的输入绑定
+            argsBuilder.AppendWithSpace("--no-input-default-bindings");
             //禁用窗口自动调整
             argsBuilder.AppendWithSpace("--no-keepaspect-window");
             argsBuilder.AppendWithSpace("--keep-open");
@@ -169,12 +171,21 @@ namespace PiPlayer.Services
             }
         }
 
-        private void PlayingTask(IEnumerable<CommandItem> items, CancellationToken cancellationToken)
+        private async void PlayingTask(IEnumerable<CommandItem> items, CancellationToken cancellationToken)
         {
             if (items?.Any() != true)
             {
                 return;
             }
+
+            string setEnvCommand = $"export DISPLAY=:0";
+
+            await Cli.Wrap("/bin/bash")
+                .WithArguments(setEnvCommand + "\nexit\n")
+                .WithWorkingDirectory((_mpv as BaseFFPlayService).GetBinaryFolder())
+                .WithValidation(CommandResultValidation.None)
+                .ExecuteAsync(cancellationToken);
+
             bool isFinished = false;
             while (!isFinished && !cancellationToken.IsCancellationRequested)
             {
