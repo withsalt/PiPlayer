@@ -10,47 +10,30 @@
 文件上传:  
 ![](https://raw.githubusercontent.com/withsalt/PiPlayer/main/docs/images/upload.png)
 
-### 服务配置
+### 开启自启
 #### 安装mpv、ffmpeg
 windows x64平台中内置了mpv和ffmpeg，其他平台需要安装对应的mpv和ffmpeg。以raspberrypi为例：  
 ```shell
 sudo apt install mpv ffmpeg
 ```
 
-#### PiPlayer服务
+#### 设置自启动
 ```shell
-sudo nano /etc/systemd/system/piplayer.service
+cd ~
+nano .bash_profile
 ```
 
-输入以下内容：
+新增以下内容：
 ```shell
-[Unit]
-Description=PiPlayer Web Service
-After=network.target
-
-[Service]
-WorkingDirectory=/opt/piplayer
-ExecStart=/opt/piplayer/PiPlayer --urls "http://*:6888"
-Restart=always
-SyslogIdentifier=PiPlayer
-User=root
-Environment=ASPNETCORE_ENVIRONMENT=Production
-
-[Install]
-WantedBy=multi-user.target
+if ! pgrep "PiPlayer" >/dev/null 2>&1 ; then
+    <替换为PiPlayer可执行文件所在路径>/PiPlayer --urls "http://*:6888" &
+fi
 ```
-授权
-```shell
-sudo chmod 775 /etc/systemd/system/piplayer.service
-```
+注意：替换PiPlayer可执行文件所在路径！！  
 
-运行
-```shell
-sudo systemctl start piplayer.service
-sudo systemctl status piplayer.service
-sudo systemctl stop piplayer.service
-sudo systemctl enable piplayer.service
-```
+其实就是把启动命令放在用户登录执行的脚本中。每次用户自动登录后，判断服务是否运行，如果没有运行，则启动服务，并指定端口为6888。
+
+注意：不能使用systemd来托管服务，使用systemd无法调用用户态的mpv播放器。
 
 ### 使用
 在浏览器中打开http://<宿主机IP>:6888体验。  

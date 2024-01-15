@@ -94,14 +94,6 @@ namespace PiPlayer
             //øÁ”Ú
             app.UseCors(GlobalConfigConstant.DefaultOriginsName);
 
-
-
-            var config = app.Services.GetService<ConfigManager>();
-            if (!Directory.Exists(config.AppSettings.MediaDirectory))
-            {
-                Directory.CreateDirectory(config.AppSettings.MediaDirectory);
-            }
-
             app.UseStaticFiles();
             app.UseMediaStaticFiles();
 
