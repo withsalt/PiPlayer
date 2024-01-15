@@ -77,6 +77,20 @@ namespace PiPlayer.Configs.Models
 
     public class ScreenMode
     {
+        private int _index = 0;
+        public int Index
+        {
+            get
+            {
+                return _index;
+            }
+            set
+            {
+                if (_index < 0) throw new ArgumentOutOfRangeException(nameof(Index));
+                _index = value;
+            }
+        }
+
         public int Width { get; set; }
 
         public int Height { get; set; }

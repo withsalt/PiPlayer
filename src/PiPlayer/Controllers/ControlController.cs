@@ -198,7 +198,7 @@ namespace PiPlayer.Controllers
             Task.Run(async () =>
             {
                 await Task.Delay(500);
-                CliWrap.CommandResult result = await Cli.Wrap(command)
+                CommandResult result = await Cli.Wrap(command)
                         .WithArguments(args)
                         .WithValidation(CommandResultValidation.None)
                         .ExecuteAsync();
@@ -223,7 +223,7 @@ namespace PiPlayer.Controllers
             Task.Run(async () =>
             {
                 await Task.Delay(500);
-                CliWrap.CommandResult result = await Cli.Wrap(command)
+                CommandResult result = await Cli.Wrap(command)
                         .WithArguments(args)
                         .WithValidation(CommandResultValidation.None)
                         .ExecuteAsync();

@@ -123,6 +123,9 @@ namespace PiPlayer.Services
             {
                 argsBuilder.AppendWithSpace($"\"{item.Path}\"");
             }
+            //指定播放屏幕
+            argsBuilder.AppendWithSpace($"--screen={_config.AppSettings.Screen.Index}");
+
             argsBuilder.AppendWithSpace("--loop-playlist=inf");
             argsBuilder.AppendWithSpace("--no-border");
             //全屏播放禁用控制器
@@ -140,12 +143,12 @@ namespace PiPlayer.Services
             argsBuilder.AppendWithSpace("--no-keepaspect-window");
             argsBuilder.AppendWithSpace("--keep-open");
             //如果当前文件是图像，则播放图像指定的秒数（默认值：1）
-            argsBuilder.AppendWithSpace($"--image-display-duration={_config.AppSettings.ImagePlaybackInterval}");
+            if (medium.Any(p => p.FileType == FileType.Image))
+                argsBuilder.AppendWithSpace($"--image-display-duration={_config.AppSettings.ImagePlaybackInterval}");
             //固定窗口和填充大小
             if (_config.AppSettings.Screen.FullScreen)
             {
                 argsBuilder.AppendWithSpace("--fullscreen");
-
             }
             else
             {
@@ -157,7 +160,6 @@ namespace PiPlayer.Services
                     .WithArguments(argsBuilder.ToString())
                     .WithWorkingDirectory((_mpv as BaseFFPlayService).GetBinaryFolder())
                     .WithValidation(CommandResultValidation.None);
-
             return commandItem;
         }
 
@@ -171,20 +173,12 @@ namespace PiPlayer.Services
             }
         }
 
-        private async void PlayingTask(IEnumerable<CommandItem> items, CancellationToken cancellationToken)
+        private void PlayingTask(IEnumerable<CommandItem> items, CancellationToken cancellationToken)
         {
             if (items?.Any() != true)
             {
                 return;
             }
-
-            string setEnvCommand = $"export DISPLAY=:0";
-
-            await Cli.Wrap("/bin/bash")
-                .WithArguments(setEnvCommand + "\nexit\n")
-                .WithWorkingDirectory((_mpv as BaseFFPlayService).GetBinaryFolder())
-                .WithValidation(CommandResultValidation.None)
-                .ExecuteAsync(cancellationToken);
 
             bool isFinished = false;
             while (!isFinished && !cancellationToken.IsCancellationRequested)
@@ -199,11 +193,8 @@ namespace PiPlayer.Services
                             break;
                         }
                         _logger.LogInformation($"Start play {string.Join(',', item.Medium.Select(p => p.FileOldName))}.");
-
                         var result = item.Command.ExecuteAsync(cancellationToken)
-                            .ConfigureAwait(false)
-                            .GetAwaiter()
-                            .GetResult();
+                            .ConfigureAwait(false).GetAwaiter().GetResult();
                         if (result.ExitCode != 0)
                         {
                             _logger.LogInformation($"Play {string.Join(',', item.Medium.Select(p => p.FileOldName))} completed. excute result is {result.ExitCode}");

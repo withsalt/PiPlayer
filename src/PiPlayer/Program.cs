@@ -21,6 +21,9 @@ namespace PiPlayer
     {
         public static void Main(string[] args)
         {
+            //设置当前目录为程序集所在目录
+            Directory.SetCurrentDirectory(AppContext.BaseDirectory);
+
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddConfig();
