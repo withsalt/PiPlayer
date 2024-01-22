@@ -5,7 +5,7 @@ namespace PiPlayer.Utils
 {
     public class CommonHelper
     {
-        public static bool TryParseConnectionString(string source, string character, string characterDic, out string connectionString)
+        public static bool TryParseLocalPathString(string source, string character, string characterDic, out string connectionString)
         {
             connectionString = null;
             var index = source.IndexOf(character, StringComparison.OrdinalIgnoreCase);

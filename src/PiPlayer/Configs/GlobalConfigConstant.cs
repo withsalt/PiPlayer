@@ -14,8 +14,13 @@ namespace PiPlayer.Configs
         public const string DefaultOriginsName = "DefaultCorsPolicy";
 
         /// <summary>
-        /// 
+        /// 存放媒体的文件夹
         /// </summary>
         public const string DefaultMediaDirectory = "media";
+
+        /// <summary>
+        /// 临时文件夹
+        /// </summary>
+        public const string DefaultTempDirectory = "temp";
     }
 }

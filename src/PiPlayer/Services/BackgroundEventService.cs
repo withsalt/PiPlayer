@@ -26,7 +26,6 @@ namespace PiPlayer.Services
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-
             return Task.CompletedTask;
         }
 

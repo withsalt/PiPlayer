@@ -64,6 +64,8 @@ namespace PiPlayer
 
             builder.Services.AddMapper();
 
+            builder.Services.AddTransient<IDefaultScreenService, DefaultScreenService>();
+
             // Add services to the container.
             builder.Services.AddControllersWithViews()
                 .AddRazorRuntimeCompilation()
@@ -104,6 +106,14 @@ namespace PiPlayer
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Video}/{action=Index}/{id?}");
+
+            IHostApplicationLifetime lifetime = app.Lifetime;
+            IDefaultScreenService defaultScreen = app.Services.GetRequiredService<IDefaultScreenService>();
+
+            lifetime.ApplicationStarted.Register(() =>
+            {
+                defaultScreen.Show();
+            });
 
             app.Run();
         }

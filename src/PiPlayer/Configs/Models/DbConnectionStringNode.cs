@@ -64,7 +64,7 @@ namespace PiPlayer.Configs.Models
                     else
                         connStr = connStr.Replace('\\', Path.DirectorySeparatorChar);
 
-                    if (CommonHelper.TryParseConnectionString(connStr, "%BASE%", AppContext.BaseDirectory, out string connTemp))
+                    if (CommonHelper.TryParseLocalPathString(connStr, "%BASE%", AppContext.BaseDirectory, out string connTemp))
                     {
                         connStr = connTemp;
                     }

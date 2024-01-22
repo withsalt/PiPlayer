@@ -58,7 +58,7 @@ namespace PiPlayer.Configs.Models
                 else
                     dic = dic.Replace('\\', Path.DirectorySeparatorChar);
 
-                if (CommonHelper.TryParseConnectionString(dic, "%BASE%", AppContext.BaseDirectory, out string connTemp))
+                if (CommonHelper.TryParseLocalPathString(dic, "%BASE%", AppContext.BaseDirectory, out string connTemp))
                 {
                     dic = connTemp;
                 }
@@ -71,6 +71,14 @@ namespace PiPlayer.Configs.Models
             get
             {
                 return Path.Combine(this.DataDirectory, GlobalConfigConstant.DefaultMediaDirectory);
+            }
+        }
+
+        public string TmpDirectory
+        {
+            get
+            {
+                return Path.Combine(this.DataDirectory, GlobalConfigConstant.DefaultTempDirectory);
             }
         }
     }
