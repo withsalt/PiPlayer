@@ -74,6 +74,7 @@
                     <a class="dropdown-item" href="javascript:void(0);" onclick="status();"><i class="fas fa-fw fa-check"></i> &nbsp; 依赖检查</a>
                     <a class="dropdown-item" href="javascript:void(0);" onclick="stop();"><i class="fas fa-fw fa-stop"></i> &nbsp; 停止播放</a>
                     <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="javascript:void(0);" onclick="refresh();"><i class="fas fa-fw fa-sign-out-alt"></i> &nbsp; 刷新</a>
                     <a class="dropdown-item" href="javascript:void(0);" onclick="reboot();"><i class="fas fa-fw fa-sign-out-alt"></i> &nbsp; 重启系统</a>
                     <a class="dropdown-item" href="javascript:void(0);" onclick="shutdown();"><i class="fas fa-fw fa-power-off"></i> &nbsp; 关闭系统</a>
                 </div>
@@ -414,6 +415,27 @@
             }, function (index) {
                 layer.close(index);
                 return;
+            });
+        }
+
+        function refresh() {
+            $.ajax({
+                type: "post",
+                url: "/Control/Refresh",
+                cache: false,
+                dataType: 'json', // 返回对象
+                success: function (data) {
+                    if (data.Code == 0) {
+                        layer.msg('刷新完成', { icon: 6 });
+                    }
+                    else {
+                        layer.msg('刷新失败，错误：' + data.Message, { icon: 5 });
+                    }
+                },
+                error: function (data) {
+                    layer.close(loadIndex);
+                    layer.msg('刷新失败，错误：请求失败。', { icon: 5 });
+                }
             });
         }
     </script>

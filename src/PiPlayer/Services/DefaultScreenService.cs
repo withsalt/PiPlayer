@@ -17,6 +17,10 @@ using PiPlayer.AspNetCore.FFMpeg;
 using PiPlayer.AspNetCore.FFMpeg.Interface;
 using PiPlayer.Configs;
 using PiPlayer.Extensions;
+using PiPlayer.Models.Common;
+using PiPlayer.Models.Entities;
+using PiPlayer.Models.Enums;
+using PiPlayer.Services.Base;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -25,19 +29,17 @@ using SixLabors.ImageSharp.Processing;
 
 namespace PiPlayer.Services
 {
-    public class DefaultScreenService : IDefaultScreenService
+    public class DefaultScreenService : BasePlayingService, IDefaultScreenService
     {
         private readonly ILogger<DefaultScreenService> _logger;
         private readonly ConfigManager _config;
         private readonly IServer _server;
         private readonly IMpvService _mpv;
 
-        private readonly static object _playLocker = new object();
-
         public DefaultScreenService(ILogger<DefaultScreenService> logger
             , ConfigManager config
             , IServer server
-            , IMpvService mpv)
+            , IMpvService mpv) : base(logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(ILogger<PlayingService>));
             _config = config ?? throw new ArgumentNullException(nameof(ConfigManager));
@@ -45,17 +47,23 @@ namespace PiPlayer.Services
             _mpv = mpv ?? throw new ArgumentNullException(nameof(IMpvService));
         }
 
-        public async Task Show()
+        public async Task Show(bool isRefresh = false)
         {
-            string showText = BuildInfo();
-            Image<Rgba32> buildImage = CreateGrid(TextToImage(showText.ToString(), 600, 600));
+            //等10s钟再显示，等网络准备好
+            if (!isRefresh)
+            {
+                await Task.Delay(30000);
+            }
+            //构建文本信息
+            string showText = BuildInfoText();
+            Image<Rgba32> buildImage = CreateImageGrid(TextToImage(showText.ToString(), 600, 600));
 
             string tmpPath = _config.AppSettings.TmpDirectory;
             if (!Directory.Exists(tmpPath))
             {
                 Directory.CreateDirectory(tmpPath);
             }
-            string tmpFilePath = Path.Combine(tmpPath, "networkInfo.png");
+            string tmpFilePath = Path.Combine(tmpPath, Guid.NewGuid().ToString() + ".png");
             await buildImage.SaveAsPngAsync(tmpFilePath);
             buildImage.Dispose();
 
@@ -63,12 +71,27 @@ namespace PiPlayer.Services
             {
                 throw new Exception("创建封面信息图像失败！");
             }
+            var cmds = GetCommandItems(tmpFilePath);
 
-            ShowInfo(tmpFilePath);
+            await StopPlaying();
+            StartPlaying(cmds);
         }
 
-        private void ShowInfo(string imagePath)
+        private List<CommandItem> GetCommandItems(string imagePath)
         {
+            string fileName = new DirectoryInfo(imagePath).Name;
+            List<Media> medias = new List<Media>()
+            {
+                new Media()
+                {
+                    FileName  = fileName,
+                    FileOldName = fileName,
+                    Path = imagePath,
+                    FileType = FileType.Image
+                }
+            };
+
+            CommandItem commandItem = new CommandItem(medias);
             StringBuilder argsBuilder = new StringBuilder();
             argsBuilder.AppendWithSpace($"\"{imagePath}\"");
             //指定播放屏幕
@@ -103,14 +126,17 @@ namespace PiPlayer.Services
                 argsBuilder.AppendWithSpace($"--autofit={_config.AppSettings.Screen.Width}x{_config.AppSettings.Screen.Height}");
             }
 
-            Cli.Wrap(_mpv.GetBinaryPath())
-                .WithArguments(argsBuilder.ToString())
-                .WithWorkingDirectory((_mpv as BaseFFPlayService).GetBinaryFolder())
-                .WithValidation(CommandResultValidation.None)
-                .ExecuteAsync();
+            commandItem.Command = Cli.Wrap(_mpv.GetBinaryPath())
+                    .WithArguments(argsBuilder.ToString())
+                    .WithWorkingDirectory((_mpv as BaseFFPlayService).GetBinaryFolder())
+                    .WithValidation(CommandResultValidation.None);
+            return new List<CommandItem>()
+            {
+                commandItem
+            };
         }
 
-        private string BuildInfo()
+        private string BuildInfoText()
         {
             //获取WIFI信息
             StringBuilder showText = new StringBuilder();
@@ -137,7 +163,7 @@ namespace PiPlayer.Services
             return showText.ToString();
         }
 
-        private Image<Rgba32> CreateGrid(Image<Rgba32> baseImage)
+        private Image<Rgba32> CreateImageGrid(Image<Rgba32> baseImage)
         {
             // 假设所有的图片都有相同的尺寸
             int imageWidth = baseImage.Width;
@@ -150,9 +176,8 @@ namespace PiPlayer.Services
                 blackImage.Mutate(x => x.Fill(Color.Black));
                 images[0] = blackImage;
 
-                var image1 = baseImage.Clone();
-                image1.Mutate(x => x.Rotate(180));
-                images[1] = image1;
+
+                images[1] = baseImage;
 
                 images[2] = blackImage.Clone();
 
@@ -167,7 +192,10 @@ namespace PiPlayer.Services
                 images[5] = image5;
 
                 images[6] = blackImage.Clone();
-                images[7] = baseImage;
+
+                var image7 = baseImage.Clone();
+                image7.Mutate(x => x.Rotate(180));
+                images[7] = image7;
                 images[8] = blackImage.Clone();
 
                 // 创建一个新的图片，宽度和高度是单个图片的3倍

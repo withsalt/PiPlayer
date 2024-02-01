@@ -12,7 +12,7 @@ using PiPlayer.Models.Enums;
 using PiPlayer.Models.ViewModels.Request;
 using PiPlayer.Models.ViewModels.Videos;
 using PiPlayer.Repository.Interface;
-using PiPlayer.Services;
+using PiPlayer.Services.Base;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,6 +31,7 @@ namespace PiPlayer.Controllers
         private readonly IPlayingService _playService;
         private readonly IMpvService _mpv;
         private readonly IFFMpegService _ffmpeg;
+        private readonly IDefaultScreenService _defaultScreen;
 
         public ControlController(ILogger<ControlController> logger
             , IWebHostEnvironment hostingEnvironment
@@ -38,7 +39,8 @@ namespace PiPlayer.Controllers
             , IMediaRepository repository
             , IPlayingService playService
             , IMpvService mpv
-            , IFFMpegService ffmpeg)
+            , IFFMpegService ffmpeg
+            , IDefaultScreenService defaultScreen)
         {
             this._logger = logger ?? throw new ArgumentNullException(nameof(ILogger<ControlController>));
             this._config = config ?? throw new ArgumentNullException(nameof(ConfigManager));
@@ -46,6 +48,7 @@ namespace PiPlayer.Controllers
             this._repository = repository ?? throw new ArgumentNullException(nameof(IMediaRepository));
             this._mpv = mpv ?? throw new ArgumentNullException(nameof(IMpvService));
             this._ffmpeg = ffmpeg ?? throw new ArgumentNullException(nameof(IFFMpegService));
+            this._defaultScreen = defaultScreen ?? throw new ArgumentNullException(nameof(IDefaultScreenService));
         }
 
         [HttpPost]
@@ -148,7 +151,7 @@ namespace PiPlayer.Controllers
         [HttpPost]
         public IActionResult Stop()
         {
-            _playService.Stop();
+            _playService.StopPlaying();
             return Json(new ResultModel<IChild>(0));
         }
 
@@ -228,6 +231,13 @@ namespace PiPlayer.Controllers
                         .WithValidation(CommandResultValidation.None)
                         .ExecuteAsync();
             });
+            return Json(new ResultModel<IChild>(0));
+        }
+
+        [HttpPost]
+        public IActionResult Refresh()
+        {
+            _defaultScreen.Show(true);
             return Json(new ResultModel<IChild>(0));
         }
     }

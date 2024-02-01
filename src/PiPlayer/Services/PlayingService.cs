@@ -16,22 +16,21 @@ using PiPlayer.Extensions;
 using PiPlayer.Models.Common;
 using PiPlayer.Models.Entities;
 using PiPlayer.Models.Enums;
+using PiPlayer.Services.Base;
 
 namespace PiPlayer.Services
 {
-    public class PlayingService : IPlayingService
+    public class PlayingService : BasePlayingService, IPlayingService
     {
         private readonly ILogger<PlayingService> _logger;
         private readonly ConfigManager _config;
         private readonly IMpvService _mpv;
         private readonly IWebHostEnvironment _hostingEnvironment;
 
-        private readonly static object _playLocker = new object();
-
         public PlayingService(ILogger<PlayingService> logger
             , ConfigManager config
             , IMpvService mpv
-            , IWebHostEnvironment hostingEnvironment)
+            , IWebHostEnvironment hostingEnvironment) : base(logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(ILogger<PlayingService>));
             _config = config ?? throw new ArgumentNullException(nameof(ConfigManager));
@@ -39,16 +38,12 @@ namespace PiPlayer.Services
             _mpv = mpv ?? throw new ArgumentNullException(nameof(IMpvService));
         }
 
-        private Task _playingTask = null;
-        private CancellationTokenSource _playingCancellationTokenSource = null;
-        private long _playingDuration = 0;
-
         public async Task<(bool, string)> Play(Media media)
         {
             try
             {
-                await Stop();
-                StartPlayingTask(GenerateCommandItem(media));
+                await StopPlaying();
+                StartPlaying(GenerateCommandItem(media));
                 return (true, "Success");
             }
             catch (Exception ex)
@@ -62,8 +57,8 @@ namespace PiPlayer.Services
         {
             try
             {
-                await Stop();
-                StartPlayingTask(GenerateCommandItem(medium));
+                await StopPlaying();
+                StartPlaying(GenerateCommandItem(medium));
                 return (true, "Success");
             }
             catch (Exception ex)
@@ -73,45 +68,9 @@ namespace PiPlayer.Services
             }
         }
 
-        public Task Stop()
-        {
-            if (_playingTask == null)
-            {
-                return Task.CompletedTask;
-            }
-            lock (_playLocker)
-            {
-                _logger.LogInformation("Waiting for the previous playback...");
-
-                _playingCancellationTokenSource.Cancel();
-
-                bool exitStatus = _playingTask.Wait(TimeSpan.FromMilliseconds(3000));
-                if (!exitStatus)
-                {
-                    throw new TimeoutException("停止播放失败，无法终止当前正在播放的内容。");
-                }
-
-                _playingTask.Dispose();
-                _playingCancellationTokenSource.Dispose();
-
-                _playingTask = null;
-                _playingCancellationTokenSource = null;
-            }
-            return Task.CompletedTask;
-        }
-
         private List<CommandItem> GenerateCommandItem(Media media)
         {
             return GenerateCommandItem(new List<Media>() { media });
-        }
-
-        private List<CommandItem> GenerateCommandItem(IEnumerable<Media> medium)
-        {
-            List<CommandItem> commandItems = new List<CommandItem>()
-            {
-                GeneratePlayCommand(medium)
-            };
-            return commandItems;
         }
 
         private CommandItem GeneratePlayCommand(IEnumerable<Media> medium)
@@ -163,94 +122,14 @@ namespace PiPlayer.Services
             return commandItem;
         }
 
-        private void StartPlayingTask(List<CommandItem> playingItems)
-        {
-            lock (_playLocker)
-            {
-                _playingCancellationTokenSource = new CancellationTokenSource();
-                _playingTask = new Task(() => PlayingTask(playingItems, _playingCancellationTokenSource.Token), TaskCreationOptions.LongRunning);
-                _playingTask.Start();
-            }
-        }
 
-        private void PlayingTask(IEnumerable<CommandItem> items, CancellationToken cancellationToken)
+        private List<CommandItem> GenerateCommandItem(IEnumerable<Media> medium)
         {
-            if (items?.Any() != true)
+            List<CommandItem> commandItems = new List<CommandItem>()
             {
-                return;
-            }
-
-            bool isFinished = false;
-            while (!isFinished && !cancellationToken.IsCancellationRequested)
-            {
-                foreach (var item in items)
-                {
-                    try
-                    {
-                        if (cancellationToken.IsCancellationRequested)
-                        {
-                            isFinished = true;
-                            break;
-                        }
-                        _logger.LogInformation($"Start play {string.Join(',', item.Medium.Select(p => p.FileOldName))}.");
-                        var result = item.Command.ExecuteAsync(cancellationToken)
-                            .ConfigureAwait(false).GetAwaiter().GetResult();
-                        if (result.ExitCode != 0)
-                        {
-                            _logger.LogInformation($"Play {string.Join(',', item.Medium.Select(p => p.FileOldName))} completed. excute result is {result.ExitCode}");
-                            Delay(1000, cancellationToken);
-                        }
-                        else
-                        {
-                            _logger.LogInformation($"Play {string.Join(',', item.Medium.Select(p => p.FileOldName))} completed.");
-                        }
-                        _playingDuration += (int)result.RunTime.TotalSeconds;
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        _logger.LogInformation($"Play {string.Join(',', item.Medium.Select(p => p.FileOldName))} completed. closed by operation canceled");
-                        isFinished = true;
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, $"Play error, {ex.Message}");
-                        //手动实现同步等待
-                        Delay(1000, cancellationToken);
-                    }
-                }
-            }
-            foreach (CommandItem item in items)
-            {
-                item.DeletePlaylist();
-            }
-            _logger.LogInformation($"Playing task exit.");
-        }
-
-        private void Delay(int milliseconds, CancellationToken cancellationToken)
-        {
-            //手动实现同步等待
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            try
-            {
-                while (!cancellationToken.IsCancellationRequested || stopwatch.ElapsedMilliseconds > milliseconds)
-                {
-                    Thread.Sleep(10);
-                    if (stopwatch.ElapsedMilliseconds > milliseconds)
-                    {
-                        break;
-                    }
-                }
-            }
-            finally
-            {
-                stopwatch.Stop();
-            }
-        }
-
-        public void Dispose()
-        {
-            Stop();
+                GeneratePlayCommand(medium)
+            };
+            return commandItems;
         }
     }
 }

@@ -14,6 +14,7 @@ using PiPlayer.AspNetCore.FFMpeg;
 using PiPlayer.Configs;
 using PiPlayer.DependencyInjection;
 using PiPlayer.Services;
+using PiPlayer.Services.Base;
 
 namespace PiPlayer
 {
@@ -32,6 +33,7 @@ namespace PiPlayer
 
             builder.Services.AddFFmpegService();
             builder.Services.AddSingleton<IPlayingService, PlayingService>();
+            builder.Services.AddSingleton<IDefaultScreenService, DefaultScreenService>();
 
             //»º´æ
             builder.Services.AddMemoryCache();
@@ -63,8 +65,6 @@ namespace PiPlayer
             builder.Services.AddRepository();
 
             builder.Services.AddMapper();
-
-            builder.Services.AddTransient<IDefaultScreenService, DefaultScreenService>();
 
             // Add services to the container.
             builder.Services.AddControllersWithViews()

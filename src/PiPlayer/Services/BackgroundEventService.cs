@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PiPlayer.Configs;
+using PiPlayer.Services.Base;
 
 namespace PiPlayer.Services
 {
@@ -31,7 +32,7 @@ namespace PiPlayer.Services
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _playService.Stop();
+            _playService.StopPlaying();
 
             return Task.CompletedTask;
         }

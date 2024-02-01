@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using PiPlayer.Models.Entities;
 
-namespace PiPlayer.Services
+namespace PiPlayer.Services.Base
 {
     public interface IPlayingService : IDisposable
     {
-        Task Stop();
+        Task StopPlaying();
 
         Task<(bool, string)> Play(Media media);
 
