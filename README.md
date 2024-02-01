@@ -10,7 +10,7 @@
 文件上传:  
 ![](https://raw.githubusercontent.com/withsalt/PiPlayer/main/docs/images/upload.png)
 
-### 开启自启
+### 教程
 #### 安装mpv、ffmpeg
 windows x64平台中内置了mpv和ffmpeg，其他平台需要安装对应的mpv和ffmpeg。以raspberrypi为例：  
 ```shell
