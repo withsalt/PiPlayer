@@ -49,51 +49,55 @@ namespace PiPlayer.Services
 
         public async Task Show(bool isRefresh = false)
         {
+            if (!_config.AppSettings.ShowDefaultScreen)
+            {
+                return;
+            }
             //等10s钟再显示，等网络准备好
             if (!isRefresh)
             {
-                await Task.Delay(30000);
+                await Task.Delay(10000);
             }
-            //构建文本信息
-            string showText = BuildInfoText();
-            Image<Rgba32> buildImage = CreateImageGrid(TextToImage(showText.ToString(), 600, 600));
-
-            string tmpPath = _config.AppSettings.TmpDirectory;
-            if (!Directory.Exists(tmpPath))
+            List<CommandItem> cmds = GetCommandItems();
+            if (cmds?.Any() != true)
             {
-                Directory.CreateDirectory(tmpPath);
+                return;
             }
-            string tmpFilePath = Path.Combine(tmpPath, Guid.NewGuid().ToString() + ".png");
-            await buildImage.SaveAsPngAsync(tmpFilePath);
-            buildImage.Dispose();
-
-            if (!File.Exists(tmpFilePath))
-            {
-                throw new Exception("创建封面信息图像失败！");
-            }
-            var cmds = GetCommandItems(tmpFilePath);
-
             await StopPlaying();
             StartPlaying(cmds);
         }
 
-        private List<CommandItem> GetCommandItems(string imagePath)
+        public Image<Rgba32> GetDefaultScreenImage()
         {
-            string fileName = new DirectoryInfo(imagePath).Name;
+            //构建文本信息
+            string showText = BuildInfoText();
+            Image<Rgba32> buildImage = CreateImageGrid(TextToImage(showText, 600, 600));
+            return buildImage;
+        }
+
+        private List<CommandItem> GetCommandItems()
+        {
+            List<string> endpoints = GetEndpoint();
+            if (endpoints?.Any() != true)
+            {
+                _logger.LogWarning("获取本地监听网络地址失败！");
+                return null;
+            }
+
             List<Media> medias = new List<Media>()
             {
                 new Media()
                 {
-                    FileName  = fileName,
-                    FileOldName = fileName,
-                    Path = imagePath,
+                    FileName = "DefaultScreen.png",
+                    FileOldName = "DefaultScreen.png",
+                    Path = endpoints.OrderByDescending(p=>p).First() + "/Download/DefaultScreen",
                     FileType = FileType.Image
                 }
             };
 
             CommandItem commandItem = new CommandItem(medias);
             StringBuilder argsBuilder = new StringBuilder();
-            argsBuilder.AppendWithSpace($"\"{imagePath}\"");
+            argsBuilder.AppendWithSpace($"\"{medias[0].Path}\"");
             //指定播放屏幕
             argsBuilder.AppendWithSpace($"--screen={_config.AppSettings.Screen.Index}");
 
@@ -114,7 +118,7 @@ namespace PiPlayer.Services
             argsBuilder.AppendWithSpace("--no-keepaspect-window");
             argsBuilder.AppendWithSpace("--keep-open");
             //如果当前文件是图像，则播放图像指定的秒数（默认值：1）
-            argsBuilder.AppendWithSpace($"--image-display-duration=3153600000");
+            argsBuilder.AppendWithSpace($"--image-display-duration=10");
             //固定窗口和填充大小
             if (_config.AppSettings.Screen.FullScreen)
             {
@@ -148,16 +152,19 @@ namespace PiPlayer.Services
             showText.AppendLine();
             //获取本地访问地址
             List<string> endpoints = GetEndpoint();
-            showText.AppendLine("WebSite:");
-            if (endpoints?.Any() != true)
+            if (endpoints?.Any() == true)
             {
-                showText.AppendLine("    --");
-            }
-            else
-            {
-                foreach (var item in endpoints)
+                showText.AppendLine("WebSite:");
+                if (endpoints?.Any() != true)
                 {
-                    showText.AppendLine("    " + item);
+                    showText.AppendLine("    --");
+                }
+                else
+                {
+                    foreach (var item in endpoints)
+                    {
+                        showText.AppendLine("    " + item);
+                    }
                 }
             }
             return showText.ToString();
@@ -253,39 +260,30 @@ namespace PiPlayer.Services
             }
             List<string> urls = new List<string>();
             var pattern = @"^(?<scheme>https?):\/\/((\+)|(\*)|\[::\]|(0.0.0.0))(?=[\:\/]|$)";
-
             foreach (var endpoint in address)
             {
                 Match match = Regex.Match(endpoint, pattern);
-                if (match.Success)
+                if (!match.Success)
                 {
-                    var localIpaddress = GetLocalNetworkAddress();
-                    if (localIpaddress?.Any() != true)
-                    {
-                        Uri httpEndpoint = new Uri(endpoint, UriKind.Absolute);
-                        urls.Add(new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port).ToString());
-                    }
-                    else
-                    {
-                        foreach (var ipItem in localIpaddress)
-                        {
-                            var uri = Regex.Replace(endpoint, @"^(?<scheme>https?):\/\/((\+)|(\*)|\[::\]|(0.0.0.0))(?=[\:\/]|$)", "${scheme}://" + ipItem);
-                            Uri httpEndpoint = new Uri(uri, UriKind.Absolute);
-                            urls.Add(new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port).ToString());
-                        }
-                    }
+                    continue;
                 }
-                else
+                var localIpaddress = GetLocalNetworkAddress();
+                if (localIpaddress?.Any() != true)
                 {
-                    Uri httpEndpoint = new Uri(endpoint, UriKind.Absolute);
-                    urls.Add(new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port).ToString());
+                    continue;
+                }
+                foreach (var ipItem in localIpaddress)
+                {
+                    var uri = Regex.Replace(endpoint, @"^(?<scheme>https?):\/\/((\+)|(\*)|\[::\]|(0.0.0.0))(?=[\:\/]|$)", "${scheme}://" + ipItem);
+                    Uri httpEndpoint = new Uri(uri, UriKind.Absolute);
+                    urls.Add(new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port).ToString().TrimEnd('/'));
                 }
             }
             return urls;
         }
 
         /// <summary>
-        /// 获取本机IPv6地址
+        /// 获取本机地址
         /// </summary>
         /// <returns></returns>
         private List<string> GetLocalNetworkAddress()

@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging;
 using PiPlayer.Configs;
 using PiPlayer.Models.Entities;
 using PiPlayer.Repository.Interface;
+using PiPlayer.Services.Base;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -16,14 +19,17 @@ namespace PiPlayer.Controllers
         private readonly ILogger<DownloadController> _logger;
         private readonly ConfigManager _config;
         private readonly IMediaRepository _repository;
+        private readonly IDefaultScreenService _defaultScreen;
 
         public DownloadController(ILogger<DownloadController> logger
             , ConfigManager config
-            , IMediaRepository repository)
+            , IMediaRepository repository
+            , IDefaultScreenService defaultScreen)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(ILogger<DownloadController>));
             _config = config ?? throw new ArgumentNullException(nameof(ConfigManager));
             _repository = repository ?? throw new ArgumentNullException(nameof(IMediaRepository));
+            _defaultScreen = defaultScreen ?? throw new ArgumentNullException(nameof(IDefaultScreenService));
         }
 
         public async Task<IActionResult> Index(long id)
@@ -74,6 +80,15 @@ namespace PiPlayer.Controllers
                     Content = $"获取文件失败，错误：{ex.Message}"
                 };
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DefaultScreen()
+        {
+            using Image<Rgba32> image = _defaultScreen.GetDefaultScreenImage();
+            using MemoryStream ms = new MemoryStream();
+            await image.SaveAsPngAsync(ms);
+            return File(ms.ToArray(), "image/png");
         }
     }
 }

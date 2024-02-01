@@ -81,6 +81,8 @@ namespace PiPlayer.Configs.Models
                 return Path.Combine(this.DataDirectory, GlobalConfigConstant.DefaultTempDirectory);
             }
         }
+
+        public bool ShowDefaultScreen { get; set; }
     }
 
     public class ScreenMode
