@@ -69,9 +69,7 @@ namespace PiPlayer.Services
 
         public Image<Rgba32> GetDefaultScreenImage()
         {
-            //构建文本信息
-            string showText = BuildInfoText();
-            Image<Rgba32> buildImage = CreateImageGrid(TextToImage(showText, 600, 600));
+            Image<Rgba32> buildImage = GetShowContent();
             return buildImage;
         }
 
@@ -140,34 +138,16 @@ namespace PiPlayer.Services
             };
         }
 
-        private string BuildInfoText()
+        private Image<Rgba32> GetShowContent()
         {
-            //获取WIFI信息
-            StringBuilder showText = new StringBuilder();
-            if (_config.AppSettings.IsEnableAP)
+            switch (_config.AppSettings.DefaultScreenContent)
             {
-                showText.AppendLine("WIFI:");
-                showText.AppendLine("    " + _config.AppSettings.APName + " / " + _config.AppSettings.APPasswd);
+                default:
+                case DefaultScreenContentType.Normal:
+                    return TextToBaseImage(BuildInfoText(), 1000, 1000);
+                case DefaultScreenContentType.Hologram:
+                    return CreateImageGrid(TextToBaseImage(BuildInfoText(), 600, 600));
             }
-            showText.AppendLine();
-            //获取本地访问地址
-            List<string> endpoints = GetEndpoint();
-            if (endpoints?.Any() == true)
-            {
-                showText.AppendLine("WebSite:");
-                if (endpoints?.Any() != true)
-                {
-                    showText.AppendLine("    --");
-                }
-                else
-                {
-                    foreach (var item in endpoints)
-                    {
-                        showText.AppendLine("    " + item);
-                    }
-                }
-            }
-            return showText.ToString();
         }
 
         private Image<Rgba32> CreateImageGrid(Image<Rgba32> baseImage)
@@ -185,10 +165,7 @@ namespace PiPlayer.Services
                 Image<Rgba32> blackImage = new Image<Rgba32>(imageWidth, imageHeight);
                 blackImage.Mutate(x => x.Fill(Color.Black));
                 images[0] = blackImage;
-
-
                 images[1] = baseImage;
-
                 images[2] = blackImage.Clone();
 
                 var image3 = baseImage.Clone();
@@ -235,7 +212,7 @@ namespace PiPlayer.Services
             }
         }
 
-        private Image<Rgba32> TextToImage(string text, int width, int height)
+        private Image<Rgba32> TextToBaseImage(string text, int width, int height)
         {
             Image<Rgba32> image = new Image<Rgba32>(width, height);
 
@@ -247,6 +224,36 @@ namespace PiPlayer.Services
                 .Fill(Color.Black)
                 .DrawText(text, font, Color.Red, new PointF(30, 100)));
             return image;
+        }
+
+        private string BuildInfoText()
+        {
+            //获取WIFI信息
+            StringBuilder showText = new StringBuilder();
+            if (_config.AppSettings.IsEnableAP)
+            {
+                showText.AppendLine("WIFI:");
+                showText.AppendLine("    " + _config.AppSettings.APName + " / " + _config.AppSettings.APPasswd);
+            }
+            showText.AppendLine();
+            //获取本地访问地址
+            List<string> endpoints = GetEndpoint();
+            if (endpoints?.Any() == true)
+            {
+                showText.AppendLine("WebSite:");
+                if (endpoints?.Any() != true)
+                {
+                    showText.AppendLine("    --");
+                }
+                else
+                {
+                    foreach (var item in endpoints)
+                    {
+                        showText.AppendLine("    " + item);
+                    }
+                }
+            }
+            return showText.ToString();
         }
 
         /// <summary>

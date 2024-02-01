@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using PiPlayer.Models.Enums;
 using PiPlayer.Utils;
 
 namespace PiPlayer.Configs.Models
@@ -83,6 +84,27 @@ namespace PiPlayer.Configs.Models
         }
 
         public bool ShowDefaultScreen { get; set; }
+
+        private DefaultScreenContentType _defaultScreenContent = DefaultScreenContentType.Normal;
+        public DefaultScreenContentType DefaultScreenContent
+        {
+            get
+            {
+                return _defaultScreenContent;
+            }
+            set
+            {
+                if (!ShowDefaultScreen)
+                {
+                    return;
+                }
+                if (!Enum.IsDefined(typeof(DefaultScreenContentType), (int)_defaultScreenContent))
+                {
+                    throw new ArgumentNullException(nameof(DefaultScreenContent), "不受支持默认显示屏幕类型");
+                }
+                _defaultScreenContent = value;
+            }
+        }
     }
 
     public class ScreenMode
