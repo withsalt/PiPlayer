@@ -59,7 +59,7 @@ namespace PiPlayer.Services
 #if DEBUG
                 await Task.Delay(1);
 #else
-                await Task.Delay(10000);
+                await Task.Delay(6000);
 #endif
             }
             List<CommandItem> cmds = GetCommandItems();
