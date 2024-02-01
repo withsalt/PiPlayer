@@ -175,6 +175,9 @@ namespace PiPlayer.Services
             // 假设所有的图片都有相同的尺寸
             int imageWidth = baseImage.Width;
             int imageHeight = baseImage.Height;
+
+            baseImage.Mutate(x => x.Flip(FlipMode.Vertical));
+
             //搞一个9宫格出来
             Image<Rgba32>[] images = new Image<Rgba32>[9];
             try
