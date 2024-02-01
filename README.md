@@ -18,22 +18,28 @@ sudo apt install mpv ffmpeg
 ```
 
 #### 设置自启动
+在 /home/用户名/.config 目录下 创建文件夹`autostart`，然后把桌面应用程序放进去，就相当于你每次开机之后自动执行了桌面应用程序。  
+以树莓派用户`pi`为例，应用程序目录为：`/home/pi/apps/piplayer`  
 ```shell
-cd ~
-nano .bash_profile
+mkdir ~/.config/autostart
+nano ~/.config/autostart/piplayer.desktop
 ```
 
 新增以下内容：
 ```shell
-if ! pgrep "PiPlayer" >/dev/null 2>&1 ; then
-    <替换为PiPlayer可执行文件所在路径>/PiPlayer --urls "http://*:6888" &
-fi
+[Desktop Entry]
+Name = PiPlayer
+Type = Application
+Comment = RaspberryPi Player WebSite
+Exec = /home/pi/apps/piplayer/PiPlayer --urls "http://*:6888"
+Terminal = false
+MultipulArgs = false
+Categories = Application;
+StartupNotify = ture
 ```
-注意：替换PiPlayer可执行文件所在路径！！  
-
-其实就是把启动命令放在用户登录执行的脚本中。每次用户自动登录后，判断服务是否运行，如果没有运行，则启动服务，并指定端口为6888。
-
-注意：不能使用systemd来托管服务，使用systemd无法调用用户态的mpv播放器。
+注意：
+1. 替换PiPlayer可执行文件所在路径！！
+2. 不能使用systemd来托管服务，使用systemd无法调用用户态的mpv播放器。
 
 ### 使用
 在浏览器中打开http://<宿主机IP>:6888体验。  
