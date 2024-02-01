@@ -56,7 +56,11 @@ namespace PiPlayer.Services
             //等10s钟再显示，等网络准备好
             if (!isRefresh)
             {
+#if DEBUG
+                await Task.Delay(1);
+#else
                 await Task.Delay(10000);
+#endif
             }
             List<CommandItem> cmds = GetCommandItems();
             if (cmds?.Any() != true)
@@ -156,33 +160,26 @@ namespace PiPlayer.Services
             int imageWidth = baseImage.Width;
             int imageHeight = baseImage.Height;
 
-            baseImage.Mutate(x => x.Flip(FlipMode.Vertical));
-
             //搞一个9宫格出来
             Image<Rgba32>[] images = new Image<Rgba32>[9];
             try
             {
                 Image<Rgba32> blackImage = new Image<Rgba32>(imageWidth, imageHeight);
                 blackImage.Mutate(x => x.Fill(Color.Black));
+
+                //构建九宫格
                 images[0] = blackImage;
-                images[1] = baseImage;
+                images[1] = baseImage.Clone();
+                images[1].Mutate(x => x.Flip(FlipMode.Vertical));
                 images[2] = blackImage.Clone();
-
-                var image3 = baseImage.Clone();
-                image3.Mutate(x => x.Rotate(90));
-                images[3] = image3;
-
+                images[3] = baseImage.Clone();
+                images[3].Mutate(x => x.Flip(FlipMode.Horizontal).Rotate(90));
                 images[4] = blackImage.Clone();
-
-                var image5 = baseImage.Clone();
-                image5.Mutate(x => x.Rotate(270));
-                images[5] = image5;
-
+                images[5] = baseImage.Clone();
+                images[5].Mutate(x => x.Flip(FlipMode.Horizontal).Rotate(270));
                 images[6] = blackImage.Clone();
-
-                var image7 = baseImage.Clone();
-                image7.Mutate(x => x.Rotate(180));
-                images[7] = image7;
+                images[7] = baseImage.Clone();
+                images[7].Mutate(x => x.Flip(FlipMode.Vertical).Rotate(180));
                 images[8] = blackImage.Clone();
 
                 // 创建一个新的图片，宽度和高度是单个图片的3倍
@@ -202,6 +199,10 @@ namespace PiPlayer.Services
             }
             finally
             {
+                if (baseImage != null)
+                {
+                    baseImage.Dispose();
+                }
                 if (images?.Any() == true)
                 {
                     foreach (var image in images)
