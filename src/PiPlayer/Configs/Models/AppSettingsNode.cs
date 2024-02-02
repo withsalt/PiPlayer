@@ -133,7 +133,16 @@ namespace PiPlayer.Configs.Models
 
         public int Height { get; set; }
 
-        public bool FullScreen { get; set; }
+        private bool _fullScreen = false;
+        public bool FullScreen
+        {
+            get => _fullScreen;
+#if DEBUG
+            set => _fullScreen = false;
+#else
+            set => _fullScreen = value;
+#endif
+        }
     }
 
     public class DefaultScreenNode
