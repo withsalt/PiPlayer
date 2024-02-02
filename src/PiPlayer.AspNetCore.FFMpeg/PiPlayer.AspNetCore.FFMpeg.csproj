@@ -18,10 +18,6 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<TargetPath>runtimes\win-x64\ffmpeg.exe</TargetPath>
 		</ContentWithTargetPath>
-		<ContentWithTargetPath Include="runtimes\win-x64\ffplay.exe" Condition="'$(RuntimeIdentifier)' != 'linux-x64' AND '$(RuntimeIdentifier)' != 'osx-x64'">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<TargetPath>runtimes\win-x64\ffplay.exe</TargetPath>
-		</ContentWithTargetPath>
 		<ContentWithTargetPath Include="runtimes\win-x64\ffprobe.exe" Condition="'$(RuntimeIdentifier)' != 'linux-x64' AND '$(RuntimeIdentifier)' != 'osx-x64'">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<TargetPath>runtimes\win-x64\ffprobe.exe</TargetPath>

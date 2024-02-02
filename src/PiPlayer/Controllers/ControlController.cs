@@ -236,16 +236,8 @@ namespace PiPlayer.Controllers
         [HttpPost]
         public async Task<IActionResult> Refresh()
         {
-            try
-            {
-                await _defaultScreen.Show(true);
-                return Json(new ResultModel<IChild>(0));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"刷新默认状态显示失败，错误：{ex.Message}");
-                return Json(new ResultModel<IChild>(-1, ex.Message));
-            }
+            await _defaultScreen.Show();
+            return Json(new ResultModel<IChild>(0));
         }
     }
 }

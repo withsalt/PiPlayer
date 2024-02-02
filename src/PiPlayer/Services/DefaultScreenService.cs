@@ -11,6 +11,7 @@ using CliWrap;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Logging;
+using NLog;
 using PiPlayer.AspNetCore.FFMpeg;
 using PiPlayer.AspNetCore.FFMpeg.Interface;
 using PiPlayer.Configs;
@@ -45,28 +46,26 @@ namespace PiPlayer.Services
             _mpv = mpv ?? throw new ArgumentNullException(nameof(IMpvService));
         }
 
-        public async Task Show(bool isRefresh = false)
+        public async Task Show()
         {
-            if (!_config.AppSettings.DefaultScreen.IsEnable)
+            try
             {
-                return;
+                if (!_config.AppSettings.DefaultScreen.IsEnable)
+                {
+                    return;
+                }
+                List<CommandItem> cmds = GetCommandItems();
+                if (cmds?.Any() != true)
+                {
+                    return;
+                }
+                await StopPlaying();
+                StartPlaying(cmds);
             }
-            //等10s钟再显示，等网络准备好
-            if (!isRefresh)
+            catch (Exception ex)
             {
-#if DEBUG
-                await Task.Delay(1);
-#else
-                await Task.Delay(3000);
-#endif
+                _logger.LogError(ex, $"Can not show default screen! {ex.Message}");
             }
-            List<CommandItem> cmds = GetCommandItems();
-            if (cmds?.Any() != true)
-            {
-                return;
-            }
-            await StopPlaying();
-            StartPlaying(cmds);
         }
 
         public Image<Rgba32> GetDefaultScreenImage()
