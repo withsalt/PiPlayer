@@ -49,7 +49,7 @@ namespace PiPlayer.Services
 
         public async Task Show(bool isRefresh = false)
         {
-            if (!_config.AppSettings.ShowDefaultScreen)
+            if (!_config.AppSettings.DefaultScreen.IsEnable)
             {
                 return;
             }
@@ -59,7 +59,7 @@ namespace PiPlayer.Services
 #if DEBUG
                 await Task.Delay(1);
 #else
-                await Task.Delay(6000);
+                await Task.Delay(3000);
 #endif
             }
             List<CommandItem> cmds = GetCommandItems();
@@ -79,8 +79,8 @@ namespace PiPlayer.Services
 
         private List<CommandItem> GetCommandItems()
         {
-            List<string> endpoints = GetEndpoint();
-            if (endpoints?.Any() != true)
+            string endpoint = GetLoopbackEndpoint();
+            if (string.IsNullOrEmpty(endpoint))
             {
                 _logger.LogWarning("获取本地监听网络地址失败！");
                 return null;
@@ -92,7 +92,7 @@ namespace PiPlayer.Services
                 {
                     FileName = "DefaultScreen.png",
                     FileOldName = "DefaultScreen.png",
-                    Path = endpoints.OrderByDescending(p=>p).First() + "/Download/DefaultScreen",
+                    Path = endpoint + "/Download/DefaultScreen",
                     FileType = FileType.Image
                 }
             };
@@ -144,13 +144,21 @@ namespace PiPlayer.Services
 
         private Image<Rgba32> GetShowContent()
         {
-            switch (_config.AppSettings.DefaultScreenContent)
+            try
             {
-                default:
-                case DefaultScreenContentType.Normal:
-                    return TextToBaseImage(BuildInfoText(), 1000, 1000);
-                case DefaultScreenContentType.Hologram:
-                    return CreateImageGrid(TextToBaseImage(BuildInfoText(), 600, 600));
+                switch (_config.AppSettings.DefaultScreen.Type)
+                {
+                    default:
+                    case DefaultScreenContentType.Normal:
+                        return TextToBaseImage(BuildInfoText(), 1000, 1000);
+                    case DefaultScreenContentType.Hologram:
+                        return CreateImageGrid(TextToBaseImage(BuildInfoText(), 600, 600));
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Get network info failed.");
+                return TextToBaseImage($"Get network info failed. \n{ex.Message}", 1000, 1000);
             }
         }
 
@@ -218,7 +226,7 @@ namespace PiPlayer.Services
             Image<Rgba32> image = new Image<Rgba32>(width, height);
 
             FontCollection collection = new();
-            FontFamily family = collection.Add("./Fonts/SourceHanSerifCN-Medium-6.otf");
+            FontFamily family = collection.Add(Path.Combine(AppContext.BaseDirectory, "Fonts", "SourceHanSerifCN-Medium-6.otf"));
             Font font = family.CreateFont(40, FontStyle.Bold);
 
             image.Mutate(x => x
@@ -231,10 +239,10 @@ namespace PiPlayer.Services
         {
             //获取WIFI信息
             StringBuilder showText = new StringBuilder();
-            if (_config.AppSettings.IsEnableAP)
+            if (_config.AppSettings.AP.IsEnable)
             {
                 showText.AppendLine("WIFI:");
-                showText.AppendLine("    " + _config.AppSettings.APName + " / " + _config.AppSettings.APPasswd);
+                showText.AppendLine("    " + _config.AppSettings.AP.Name + " / " + _config.AppSettings.AP.Password);
             }
             showText.AppendLine();
             //获取本地访问地址
@@ -285,12 +293,39 @@ namespace PiPlayer.Services
                 }
                 foreach (var ipItem in localIpaddress)
                 {
-                    var uri = Regex.Replace(endpoint, @"^(?<scheme>https?):\/\/((\+)|(\*)|\[::\]|(0.0.0.0))(?=[\:\/]|$)", "${scheme}://" + ipItem);
+                    var uri = Regex.Replace(endpoint, pattern, "${scheme}://" + ipItem);
                     Uri httpEndpoint = new Uri(uri, UriKind.Absolute);
                     urls.Add(new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port).ToString().TrimEnd('/'));
                 }
             }
             return urls;
+        }
+
+        private string GetLoopbackEndpoint()
+        {
+            var address = _server.Features.Get<IServerAddressesFeature>()?.Addresses?.ToArray();
+            if (address == null || address.Length == 0)
+            {
+                throw new Exception("Can not get current app endpoint.");
+            }
+            var pattern = @"^(?<scheme>https?):\/\/((\+)|(\*)|\[::\]|(0.0.0.0))(?=[\:\/]|$)";
+            foreach (var endpoint in address)
+            {
+                Match match = Regex.Match(endpoint, pattern);
+                if (!match.Success)
+                {
+                    continue;
+                }
+                var localIpaddress = GetLocalNetworkAddress();
+                if (localIpaddress?.Any() != true)
+                {
+                    continue;
+                }
+                var uri = Regex.Replace(endpoint, pattern, "${scheme}://127.0.0.1");
+                Uri httpEndpoint = new Uri(uri, UriKind.Absolute);
+                return new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port).ToString().TrimEnd('/');
+            }
+            return null;
         }
 
         /// <summary>

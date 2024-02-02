@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Runtime.InteropServices;
 using PiPlayer.Models.Enums;
@@ -31,12 +32,6 @@ namespace PiPlayer.Configs.Models
                 return imagePlaybackInterval;
             }
         }
-
-        public bool IsEnableAP { get; set; }
-
-        public string APName { get; set; }
-
-        public string APPasswd { get; set; }
 
         private string _dataDirectory = null;
 
@@ -83,26 +78,38 @@ namespace PiPlayer.Configs.Models
             }
         }
 
-        public bool ShowDefaultScreen { get; set; }
+        public APNode AP { get; set; }
 
-        private DefaultScreenContentType _defaultScreenContent = DefaultScreenContentType.Normal;
-        public DefaultScreenContentType DefaultScreenContent
+        public DefaultScreenNode DefaultScreen { get; set; }
+
+        private string _connectionString = null;
+
+        /// <summary>
+        /// 连接字符串
+        /// </summary>
+        public string DbConnectionString
         {
             get
             {
-                return _defaultScreenContent;
+                return _connectionString;
             }
             set
             {
-                if (!ShowDefaultScreen)
+                if (string.IsNullOrEmpty(value))
                 {
-                    return;
+                    throw new ArgumentNullException(nameof(DbConnectionString), "Connection string can not null");
                 }
-                if (!Enum.IsDefined(typeof(DefaultScreenContentType), (int)_defaultScreenContent))
+                string connStr = value;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    connStr = connStr.Replace('/', Path.DirectorySeparatorChar);
+                else
+                    connStr = connStr.Replace('\\', Path.DirectorySeparatorChar);
+
+                if (CommonHelper.TryParseLocalPathString(connStr, "%BASE%", AppContext.BaseDirectory, out string connTemp))
                 {
-                    throw new ArgumentNullException(nameof(DefaultScreenContent), "不受支持默认显示屏幕类型");
+                    connStr = connTemp;
                 }
-                _defaultScreenContent = value;
+                _connectionString = connStr;
             }
         }
     }
@@ -128,5 +135,40 @@ namespace PiPlayer.Configs.Models
         public int Height { get; set; }
 
         public bool FullScreen { get; set; }
+    }
+
+    public class DefaultScreenNode
+    {
+        public bool IsEnable { get; set; }
+
+        private DefaultScreenContentType _type = DefaultScreenContentType.Normal;
+        public DefaultScreenContentType Type
+        {
+            get
+            {
+                return _type;
+            }
+            set
+            {
+                if (!IsEnable)
+                {
+                    return;
+                }
+                if (!Enum.IsDefined(typeof(DefaultScreenContentType), (int)_type))
+                {
+                    throw new ArgumentNullException(nameof(Type), "不受支持默认显示屏幕类型");
+                }
+                _type = value;
+            }
+        }
+    }
+
+    public class APNode
+    {
+        public bool IsEnable { get; set; }
+
+        public string Name { get; set; }
+
+        public string Password { get; set; }
     }
 }

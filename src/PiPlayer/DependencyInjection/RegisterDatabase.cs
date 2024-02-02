@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using OnceMi.AspNetCore.IdGenerator;
+using PiPlayer.Configs;
 using PiPlayer.Configs.Models;
 using PiPlayer.DependencyInjection.Extensions;
 using PiPlayer.Models.Attributes;
@@ -34,11 +35,11 @@ namespace PiPlayer.DependencyInjection
             using (var provider = services.BuildServiceProvider())
             {
                 ILogger<IFreeSql> logger = provider.GetRequiredService<ILoggerFactory>().CreateLogger<IFreeSql>();
-                IConfiguration configuration = provider.GetRequiredService<IConfiguration>();
+                ConfigManager config = provider.GetRequiredService<ConfigManager>();
                 IIdGeneratorService idGenerator = provider.GetRequiredService<IIdGeneratorService>();
                 IWebHostEnvironment env = provider.GetRequiredService<IWebHostEnvironment>();
                 //获取所有的连接字符串
-                DbConnectionStringNode connectionString = GetConnectionStrings(configuration);
+                DbConnectionStringNode connectionString = GetConnectionStrings(config);
                 //创建IFreeSql对象
                 var registerResult = ib.TryRegister(connectionString.Name, () =>
                 {
@@ -115,12 +116,12 @@ namespace PiPlayer.DependencyInjection
             {
                 throw new Exception("Get idlebus service failed.");
             }
-            IConfiguration configuration = app.ApplicationServices.GetRequiredService<IConfiguration>();
+            ConfigManager config = app.ApplicationServices.GetRequiredService<ConfigManager>();
             IWebHostEnvironment env = app.ApplicationServices.GetRequiredService<IWebHostEnvironment>();
             ILoggerFactory loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
             ILogger logger = loggerFactory.CreateLogger(nameof(RegisterDatabase));
             //获取所有的连接字符串
-            DbConnectionStringNode connectionString = GetConnectionStrings(configuration);
+            DbConnectionStringNode connectionString = GetConnectionStrings(config);
             //配置文件中开启了初始化数据库，并开启了开发者模式
             if (!IsAutoSyncStructure(connectionString, env))
             {
@@ -222,23 +223,20 @@ namespace PiPlayer.DependencyInjection
         /// <param name="configuration"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        private static DbConnectionStringNode GetConnectionStrings(IConfiguration configuration)
+        private static DbConnectionStringNode GetConnectionStrings(ConfigManager config)
         {
-            if (configuration == null)
+            string connectionString = config.AppSettings.DbConnectionString;
+            if (string.IsNullOrWhiteSpace(connectionString))
             {
-                return null;
+                throw new Exception("Can not get connect string from app setting.");
             }
-            IConfigurationSection section = configuration.GetSection("DbConnectionStrings");
-            if (section == null || !section.Exists())
+            return new DbConnectionStringNode()
             {
-                throw new Exception("Can not get connect strings from app setting.");
-            }
-            DbConnectionStringNode connectionString = section.Get<DbConnectionStringNode>();
-            if (connectionString == null || string.IsNullOrWhiteSpace(connectionString.ConnectionString))
-            {
-                throw new Exception("Can not get connect strings from app setting.");
-            }
-            return connectionString;
+                Name = "Sqlite",
+                DbType = FreeSql.DataType.Sqlite,
+                ConnectionString = connectionString,
+                AutoSyncStructure = true,
+            };
         }
     }
 }
