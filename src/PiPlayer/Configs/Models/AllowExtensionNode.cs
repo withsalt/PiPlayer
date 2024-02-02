@@ -1,5 +1,5 @@
-﻿using PiPlayer.Models.Enums;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using PiPlayer.Models.Enums;
 
 namespace PiPlayer.Configs.Models
 {

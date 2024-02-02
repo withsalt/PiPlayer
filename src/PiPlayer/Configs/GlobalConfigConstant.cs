@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text.Json;
-
-namespace PiPlayer.Configs
+﻿namespace PiPlayer.Configs
 {
     /// <summary>
     /// 全局静态配置

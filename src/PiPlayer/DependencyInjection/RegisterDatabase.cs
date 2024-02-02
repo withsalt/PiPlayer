@@ -1,9 +1,14 @@
-﻿using FreeSql;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using FreeSql;
 using FreeSql.Aop;
 using FreeSql.DataAnnotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -16,13 +21,6 @@ using PiPlayer.Models.Entities;
 using PiPlayer.Repository;
 using PiPlayer.Repository.Base;
 using PiPlayer.Repository.Interface;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace PiPlayer.DependencyInjection
 {

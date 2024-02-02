@@ -1,5 +1,5 @@
-﻿using PiPlayer.Models.Entities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using PiPlayer.Models.Entities;
 
 namespace PiPlayer.Models.ViewModels.Videos
 {

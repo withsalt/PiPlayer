@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PiPlayer.Models.Enums
+﻿namespace PiPlayer.Models.Enums
 {
     public enum FileType
     {

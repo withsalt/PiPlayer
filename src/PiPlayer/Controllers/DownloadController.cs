@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
@@ -8,9 +10,6 @@ using PiPlayer.Repository.Interface;
 using PiPlayer.Services.Base;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using System;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace PiPlayer.Controllers
 {

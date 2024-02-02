@@ -1,8 +1,8 @@
-﻿using FreeSql;
-using Microsoft.Data.Sqlite;
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
+using FreeSql;
+using Microsoft.Data.Sqlite;
 
 namespace PiPlayer.DependencyInjection.Extensions
 {

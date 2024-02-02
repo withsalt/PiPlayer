@@ -1,6 +1,6 @@
-﻿using PiPlayer.Models.Common.JsonObject;
+﻿using System;
+using PiPlayer.Models.Common.JsonObject;
 using PiPlayer.Models.Enums;
-using System;
 
 namespace PiPlayer.Models.ViewModels.Response.FileUpload
 {

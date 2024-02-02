@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PiPlayer.Configs;
@@ -7,9 +10,6 @@ using PiPlayer.Models.Enums;
 using PiPlayer.Models.ViewModels.Videos;
 using PiPlayer.Repository.Interface;
 using PiPlayer.Utils;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PiPlayer.Controllers
 {

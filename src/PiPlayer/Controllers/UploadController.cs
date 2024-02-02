@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
@@ -12,14 +16,9 @@ using PiPlayer.Models.Enums;
 using PiPlayer.Models.ViewModels.Request.Upload;
 using PiPlayer.Models.ViewModels.Response.FileUpload;
 using PiPlayer.Repository.Interface;
-using PiPlayer.Utils;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PiPlayer.Controllers
 {

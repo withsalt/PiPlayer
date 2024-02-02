@@ -1,4 +1,11 @@
-﻿using CliWrap;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+using CliWrap;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -10,16 +17,8 @@ using PiPlayer.Models.Common.JsonObject;
 using PiPlayer.Models.Entities;
 using PiPlayer.Models.Enums;
 using PiPlayer.Models.ViewModels.Request;
-using PiPlayer.Models.ViewModels.Videos;
 using PiPlayer.Repository.Interface;
 using PiPlayer.Services.Base;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PiPlayer.Controllers
 {

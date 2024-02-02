@@ -1,10 +1,11 @@
-﻿
-using Microsoft.AspNetCore.Hosting;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
 using PiPlayer.Configs;
-using PiPlayer.Extensions;
 using PiPlayer.Models.Common;
 using PiPlayer.Models.Common.JsonObject;
 using PiPlayer.Models.Entities;
@@ -13,12 +14,6 @@ using PiPlayer.Models.ViewModels.Response.FileUpload;
 using PiPlayer.Models.ViewModels.Videos;
 using PiPlayer.Repository.Interface;
 using PiPlayer.Utils;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PiPlayer.Controllers
 {

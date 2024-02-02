@@ -1,6 +1,6 @@
-﻿using FreeSql.DataAnnotations;
-using System;
+﻿using System;
 using System.ComponentModel;
+using FreeSql.DataAnnotations;
 
 namespace PiPlayer.Models.Entities
 {

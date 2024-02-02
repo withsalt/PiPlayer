@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using CliWrap;
 using CliWrap.Buffered;
-using FFMpegCore;
 using Microsoft.Extensions.Logging;
 using PiPlayer.AspNetCore.FFMpeg.Interface;
 using PiPlayer.AspNetCore.FFMpeg.Models;
