@@ -292,7 +292,12 @@ namespace PiPlayer.Services
                 {
                     var uri = Regex.Replace(endpoint, pattern, "${scheme}://" + ipItem);
                     Uri httpEndpoint = new Uri(uri, UriKind.Absolute);
-                    urls.Add(new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port).ToString().TrimEnd('/').Replace(":80", "").Replace(":443", ""));
+                    string url = new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port)
+                        .ToString()
+                        .Replace(":80/", "")
+                        .Replace(":443/", "")
+                        .TrimEnd('/');
+                    urls.Add(url);
                 }
             }
             return urls;
