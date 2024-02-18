@@ -236,7 +236,11 @@
                 else if (items[i].type == "Music") {
                     typeIcon = "fa-music";
                 }
-                var itemVal = "<a class=\"dropdown-item\" name=\"seq-item\" id=\"sql-item-" + items[i].id + "\" href=\"javascript:void(0);\"  onclick=\"clickPlayItem(this,'" + items[i].id + "','" + items[i].name + "')\"><i class=\"fas fa-fw " + typeIcon + " \"></i> &nbsp; " + items[i].name + "</a>";
+                var name = items[i].name;
+                if ($(document.body).width() < 500 && name.length > 25) {
+                    name = name.substring(0, 25) + "...";
+                }
+                var itemVal = "<a class=\"dropdown-item\" name=\"seq-item\" id=\"sql-item-" + items[i].id + "\" href=\"javascript:void(0);\"  onclick=\"clickPlayItem(this,'" + items[i].id + "','" + name + "')\"><i class=\"fas fa-fw " + typeIcon + " \"></i> &nbsp; " + name + "</a>";
                 baseNode.after(itemVal);
             }
         }

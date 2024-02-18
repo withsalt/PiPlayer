@@ -224,7 +224,7 @@ namespace PiPlayer.Services
 
             FontCollection collection = new();
             FontFamily family = collection.Add(Path.Combine(AppContext.BaseDirectory, "Fonts", "SourceHanSerifCN-Medium-6.otf"));
-            Font font = family.CreateFont(40, FontStyle.Bold);
+            Font font = family.CreateFont(42, FontStyle.Bold);
 
             image.Mutate(x => x
                 .Fill(Color.Black)
@@ -292,7 +292,7 @@ namespace PiPlayer.Services
                 {
                     var uri = Regex.Replace(endpoint, pattern, "${scheme}://" + ipItem);
                     Uri httpEndpoint = new Uri(uri, UriKind.Absolute);
-                    urls.Add(new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port).ToString().TrimEnd('/'));
+                    urls.Add(new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port).ToString().TrimEnd('/').Replace(":80", "").Replace(":443", ""));
                 }
             }
             return urls;
