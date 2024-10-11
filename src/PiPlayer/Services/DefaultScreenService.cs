@@ -11,7 +11,6 @@ using CliWrap;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Logging;
-using NLog;
 using PiPlayer.AspNetCore.FFMpeg;
 using PiPlayer.AspNetCore.FFMpeg.Interface;
 using PiPlayer.Configs;

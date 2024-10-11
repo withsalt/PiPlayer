@@ -9,9 +9,9 @@
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
 		<PackageReference Include="CliWrap" Version="3.6.6" />
-		<PackageReference Include="NLog.Web.AspNetCore" Version="5.3.12" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.8" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.8" />
+		<PackageReference Include="NLog.Web.AspNetCore" Version="5.3.14" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
 		<PackageReference Include="OnceMi.AspNetCore.IdGenerator" Version="1.0.6" />
 		<PackageReference Include="IdleBus" Version="1.5.3" />
@@ -21,7 +21,7 @@
 		<PackageReference Include="SixLabors.Fonts" Version="2.0.4" />
 		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
 		<PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
-		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.9" />
+		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.10" />
 	</ItemGroup>
 
 	<ItemGroup>
