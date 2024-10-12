@@ -77,11 +77,14 @@ namespace PiPlayer.Configs.Models
             }
         }
 
-        public APNode AP { get; set; }
-
         public DefaultScreenNode DefaultScreen { get; set; }
 
         private string _connectionString = null;
+
+        /// <summary>
+        /// 启动时网络状态检查
+        /// </summary>
+        public bool NetworkCheck {  get; set; }
 
         /// <summary>
         /// 连接字符串
@@ -169,14 +172,15 @@ namespace PiPlayer.Configs.Models
                 _type = value;
             }
         }
-    }
 
-    public class APNode
-    {
-        public bool IsEnable { get; set; }
+        /// <summary>
+        /// 默认会展示出来可以访问地址中的地址
+        /// </summary>
+        public List<string> DefaultShowHosts { get; set; }
 
-        public string Name { get; set; }
-
-        public string Password { get; set; }
+        /// <summary>
+        /// 前缀匹配地址
+        /// </summary>
+        public List<string> HostPrefixMatch { get; set; }
     }
 }

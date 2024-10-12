@@ -235,28 +235,33 @@ namespace PiPlayer.Services
         {
             //获取WIFI信息
             StringBuilder showText = new StringBuilder();
-            if (_config.AppSettings.AP.IsEnable)
-            {
-                showText.AppendLine("WIFI:");
-                showText.AppendLine("    " + _config.AppSettings.AP.Name + " / " + _config.AppSettings.AP.Password);
-            }
             showText.AppendLine();
+
+            string pre = "    ";
+            bool hasAddress = false;
+
             //获取本地访问地址
             List<string> endpoints = GetEndpoint();
+            showText.AppendLine("访问地址:");
+            if (_config.AppSettings.DefaultScreen.DefaultShowHosts?.Any() == true)
+            {
+                hasAddress = true;
+                foreach (var item in _config.AppSettings.DefaultScreen.DefaultShowHosts)
+                {
+                    showText.AppendLine(pre + item);
+                }
+            }
             if (endpoints?.Any() == true)
             {
-                showText.AppendLine("WebSite:");
-                if (endpoints?.Any() != true)
+                hasAddress = true;
+                foreach (var item in endpoints)
                 {
-                    showText.AppendLine("    --");
+                    showText.AppendLine(pre + item);
                 }
-                else
-                {
-                    foreach (var item in endpoints)
-                    {
-                        showText.AppendLine("    " + item);
-                    }
-                }
+            }
+            if (!hasAddress)
+            {
+                showText.AppendLine(pre + "没有可访问地址！");
             }
             return showText.ToString();
         }
@@ -289,6 +294,13 @@ namespace PiPlayer.Services
                 }
                 foreach (var ipItem in localIpaddress)
                 {
+                    if (_config.AppSettings.DefaultScreen.HostPrefixMatch?.Count > 0)
+                    {
+                        if (!_config.AppSettings.DefaultScreen.HostPrefixMatch.Any(p => ipItem.StartsWith(p)))
+                        {
+                            continue;
+                        }
+                    }
                     var uri = Regex.Replace(endpoint, pattern, "${scheme}://" + ipItem);
                     Uri httpEndpoint = new Uri(uri, UriKind.Absolute);
                     string url = new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port)

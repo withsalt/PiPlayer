@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
@@ -80,8 +81,6 @@ namespace PiPlayer
                 options.MultipartBodyLengthLimit = 107374182400;
             });
 
-            builder.Services.AddHostedService<BackgroundEventService>();
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -113,7 +112,11 @@ namespace PiPlayer
                 defaultScreen.Show();
             });
 
-            app.Run();
+            try
+            {
+                app.Run();
+            }
+            catch(TaskCanceledException) { }
         }
     }
 }
