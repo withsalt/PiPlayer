@@ -64,6 +64,8 @@ namespace PiPlayer
 
             builder.Services.AddMapper();
 
+            builder.Services.AddHostedService<PiPlayerHostService>();
+
             // Add services to the container.
             builder.Services.AddControllersWithViews()
                 .AddRazorRuntimeCompilation()
