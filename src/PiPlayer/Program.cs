@@ -105,11 +105,9 @@ namespace PiPlayer
                 name: "default",
                 pattern: "{controller=Video}/{action=Index}/{id?}");
 
-            IHostApplicationLifetime lifetime = app.Lifetime;
-            IDefaultScreenService defaultScreen = app.Services.GetRequiredService<IDefaultScreenService>();
-
-            lifetime.ApplicationStarted.Register(() =>
+            app.Lifetime.ApplicationStarted.Register(() =>
             {
+                IDefaultScreenService defaultScreen = app.Services.GetRequiredService<IDefaultScreenService>();
                 defaultScreen.Show();
             });
 
