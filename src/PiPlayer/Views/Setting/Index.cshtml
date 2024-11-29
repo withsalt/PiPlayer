@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "设置";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="content-wrapper">
+    <div class="container-fluid pb-0">
+        <div class="file-loading" style="height:38px">
+            <input id="input-box" class="file" type="file" multiple data-min-file-count="1">
+        </div>
+        <button type="submit" class="btn btn-primary" onclick="save(); return false;">保存</button>
+    </div>
+</div>
+<!-- /.content-wrapper -->
+@section Styles{
+    <link href="/lib/bootstrap-fileinput/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="/lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all" rel="stylesheet" type="text/css" />
+
+}
+
+@section Scripts{
+    <script src="/lib/bootstrap-fileinput/js/plugins/piexif.js" type="text/javascript"></script>
+    <script src="/lib/bootstrap-fileinput/js/plugins/sortable.js" type="text/javascript"></script>
+    <script src="/lib/bootstrap-fileinput/js/fileinput.min.js" type="text/javascript"></script>
+    <script src="/lib/bootstrap-fileinput/js/locales/zh.js" type="text/javascript"></script>
+    <script src="/lib/bootstrap-fileinput/themes/fa4/theme.min.js" type="text/javascript"></script>
+
+    <script>
+        
+    </script>
+}
+
