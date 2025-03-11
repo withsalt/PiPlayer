@@ -16,30 +16,40 @@ namespace PiPlayer.Services
         private readonly ConfigManager _config;
         private readonly ILogger<PiPlayerHostService> _logger;
         private readonly IPlayingService _playService;
+        private readonly IConnectionService _connectionService;
 
         public PiPlayerHostService(ILogger<PiPlayerHostService> logger
             , IdleBus<IFreeSql> ib
             , ConfigManager config
-            , IPlayingService playService)
+            , IPlayingService playService
+            , IConnectionService connectionService)
         {
             this._logger = logger ?? throw new ArgumentNullException(nameof(ILogger<PiPlayerHostService>));
             this._ib = ib;
             this._config = config ?? throw new ArgumentNullException(nameof(ConfigManager));
             this._playService = playService ?? throw new ArgumentNullException(nameof(IPlayingService));
+            this._connectionService = connectionService ?? throw new ArgumentNullException(nameof(IConnectionService));
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             await NetworkStatusCheck(cancellationToken);
+
+            if(_config.AppSettings.NetworkCheck && _config.AppSettings.BemfaIot.IsEnabled)
+            {
+                await _connectionService.ConnectAsync();
+            }
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
+            await _playService.StopPlaying();
+            await _connectionService.DisconnectAsync();
+
             if (_ib != null)
             {
                 _ib.Dispose();
             }
-            await _playService.StopPlaying();
         }
 
         private async Task NetworkStatusCheck(CancellationToken cancellationToken)

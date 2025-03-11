@@ -34,6 +34,8 @@ namespace PiPlayer
             builder.Services.AddSingleton<IPlayingService, PlayingService>();
             builder.Services.AddSingleton<IDefaultScreenService, DefaultScreenService>();
 
+            builder.Services.AddSingleton<IConnectionService, ConnectionService>();
+
             //»º´æ
             builder.Services.AddMemoryCache();
             //Êý¾Ý¿â
@@ -116,7 +118,7 @@ namespace PiPlayer
             {
                 app.Run();
             }
-            catch(TaskCanceledException) { }
+            catch (TaskCanceledException) { }
         }
     }
 }

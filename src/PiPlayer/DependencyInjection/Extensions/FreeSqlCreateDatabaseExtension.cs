@@ -37,13 +37,9 @@ namespace PiPlayer.DependencyInjection.Extensions
                     break;
                 case DataType.Sqlite:
                     return @this.CreateDatabaseIfNotExistsSqlite(connectionString);
-                case DataType.OdbcDameng:
-                    break;
-                case DataType.MsAccess:
-                    break;
                 case DataType.Dameng:
                     break;
-                case DataType.OdbcKingbaseES:
+                case DataType.MsAccess:
                     break;
                 case DataType.ShenTong:
                     break;

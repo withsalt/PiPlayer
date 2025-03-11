@@ -8,8 +8,7 @@ namespace PiPlayer.Repository.Base
     {
         public IdleBus<IFreeSql> DbContainer { get; set; }
 
-        public BaseUnitOfWorkRepository(BaseUnitOfWorkManager uow, Expression<Func<TEntity, bool>> filter = null, Func<string, string> asTable = null)
-            : base(uow.Orm, filter, asTable)
+        public BaseUnitOfWorkRepository(BaseUnitOfWorkManager uow, Expression<Func<TEntity, bool>> filter = null, Func<string, string> asTable = null) : base(uow.Orm)
         {
             uow.Binding(this);
             DbContainer = uow.DbContainer;

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CliWrap;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PiPlayer.AspNetCore.FFMpeg;
 using PiPlayer.AspNetCore.FFMpeg.Interface;
@@ -13,6 +15,7 @@ using PiPlayer.Extensions;
 using PiPlayer.Models.Common;
 using PiPlayer.Models.Entities;
 using PiPlayer.Models.Enums;
+using PiPlayer.Repository.Interface;
 using PiPlayer.Services.Base;
 
 namespace PiPlayer.Services
@@ -23,16 +26,19 @@ namespace PiPlayer.Services
         private readonly ConfigManager _config;
         private readonly IMpvService _mpv;
         private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly IServiceProvider _serviceProvider;
 
         public PlayingService(ILogger<PlayingService> logger
             , ConfigManager config
             , IMpvService mpv
-            , IWebHostEnvironment hostingEnvironment) : base(logger)
+            , IWebHostEnvironment hostingEnvironment
+            , IServiceProvider serviceProvider) : base(logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(ILogger<PlayingService>));
             _config = config ?? throw new ArgumentNullException(nameof(ConfigManager));
             _hostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(IWebHostEnvironment));
             _mpv = mpv ?? throw new ArgumentNullException(nameof(IMpvService));
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(IServiceProvider));
         }
 
         public async Task<(bool, string)> Play(Media media)
@@ -47,6 +53,47 @@ namespace PiPlayer.Services
             {
                 _logger.LogError(ex, $"Play item failed. {ex.Message}");
                 return (false, ex.Message);
+            }
+        }
+
+        public async Task PlayRandom()
+        {
+            try
+            {
+                using var scope = _serviceProvider.CreateScope();
+                var repository = scope.ServiceProvider.GetRequiredService<IMediaRepository>();
+
+                Media material = await repository.Where(s => s.FileType == FileType.Video || s.FileType == FileType.Image)
+                    .OrderByRandom()
+                    .FirstAsync();
+                if (material == null)
+                {
+                    _logger.LogWarning("没有找到可播放的素材（随机播放仅支持视频和图片）");
+                    return;
+                }
+                string filePath = Path.Combine(_config.AppSettings.DataDirectory, material.Path.Replace('/', Path.DirectorySeparatorChar));
+                if (!System.IO.File.Exists(filePath))
+                {
+                    _logger.LogWarning("素材文件不存在");
+                    return;
+                }
+                material.Path = filePath;
+                (bool, string) result = (false, null);
+                switch (material.FileType)
+                {
+                    case FileType.Video:
+                    case FileType.Music:
+                    case FileType.Image:
+                        result = await Play(material);
+                        break;
+                    default:
+                        _logger.LogWarning("未知的文件类型");
+                        return;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Play random items failed. {ex.Message}");
             }
         }
 

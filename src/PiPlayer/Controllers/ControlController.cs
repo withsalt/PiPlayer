@@ -74,11 +74,7 @@ namespace PiPlayer.Controllers
                 switch (material.FileType)
                 {
                     case FileType.Video:
-                        result = await _playService.Play(material);
-                        break;
                     case FileType.Music:
-                        result = await _playService.Play(material);
-                        break;
                     case FileType.Image:
                         result = await _playService.Play(material);
                         break;

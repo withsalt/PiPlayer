@@ -11,6 +11,8 @@ namespace PiPlayer.Configs.Models
     {
         public List<AllowExtensionNode> AllowExtensions { get; set; }
 
+        public BemfaIot BemfaIot { get; set; }
+
         public ScreenMode Screen { get; set; }
 
 
@@ -182,5 +184,20 @@ namespace PiPlayer.Configs.Models
         /// 前缀匹配地址
         /// </summary>
         public List<string> HostPrefixMatch { get; set; }
+    }
+
+    public class BemfaIot
+    {
+        public bool IsEnabled { get; set; }
+
+        /// <summary>
+        /// 设备Id
+        /// </summary>
+        public string DeviceId { get; set; }
+
+        /// <summary>
+        /// 私钥
+        /// </summary>
+        public string PrivateKey { get; set; }
     }
 }

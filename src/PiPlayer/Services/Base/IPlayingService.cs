@@ -12,5 +12,7 @@ namespace PiPlayer.Services.Base
         Task<(bool, string)> Play(Media media);
 
         Task<(bool, string)> PlayQueue(IEnumerable<Media> medium);
+
+        Task PlayRandom();
     }
 }
