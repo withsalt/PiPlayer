@@ -37,35 +37,35 @@ namespace PiPlayer.DependencyInjection
                 IIdGeneratorService idGenerator = provider.GetRequiredService<IIdGeneratorService>();
                 IWebHostEnvironment env = provider.GetRequiredService<IWebHostEnvironment>();
                 //获取所有的连接字符串
-                DbConnectionStringNode connectionString = GetConnectionStrings(config);
+                DbConnectionStringNode dbSetting = GetConnectionStrings(config);
                 //创建IFreeSql对象
-                var registerResult = ib.TryRegister(connectionString.Name, () =>
+                var registerResult = ib.TryRegister(dbSetting.Name, () =>
                 {
                     //是否开启自动迁移
-                    bool syncStructure = IsAutoSyncStructure(connectionString, env);
+                    bool syncStructure = IsAutoSyncStructure(dbSetting, env);
                     //create builder
                     FreeSqlBuilder fsqlBuilder = new FreeSqlBuilder()
-                        .UseConnectionString(connectionString.DbType, connectionString.ConnectionString)
+                        .UseConnectionString(dbSetting.DbType, dbSetting.ConnectionString)
                         .UseAutoSyncStructure(syncStructure);
                     //如果数据库不存在，那么自动创建数据库
-                    if (syncStructure && (connectionString.DbType == FreeSql.DataType.MySql
-                        || connectionString.DbType == FreeSql.DataType.SqlServer
-                        || connectionString.DbType == FreeSql.DataType.PostgreSQL
-                        || connectionString.DbType == FreeSql.DataType.Sqlite
-                        || connectionString.DbType == FreeSql.DataType.OdbcSqlServer))
+                    if (syncStructure && (dbSetting.DbType == FreeSql.DataType.MySql
+                        || dbSetting.DbType == FreeSql.DataType.SqlServer
+                        || dbSetting.DbType == FreeSql.DataType.PostgreSQL
+                        || dbSetting.DbType == FreeSql.DataType.Sqlite
+                        || dbSetting.DbType == FreeSql.DataType.OdbcSqlServer))
                     {
                         fsqlBuilder.CreateDatabaseIfNotExists();
                     }
                     //判断是否开启读写分离
-                    if (connectionString.Slaves != null && connectionString.Slaves.Length > 0)
+                    if (dbSetting.Slaves != null && dbSetting.Slaves.Length > 0)
                     {
-                        fsqlBuilder.UseSlave(connectionString.Slaves);
+                        fsqlBuilder.UseSlave(dbSetting.Slaves);
                     }
                     IFreeSql fsql = fsqlBuilder.Build();
                     //sql执行日志
                     fsql.Aop.CurdAfter += (s, e) =>
                     {
-                        logger.LogDebug($"{connectionString.Name}(thread-{Thread.CurrentThread.ManagedThreadId}):\n  Namespace: {e.EntityType.FullName} \nElapsedTime: {e.ElapsedMilliseconds}ms \n        SQL: {e.Sql}");
+                        logger.LogDebug($"{dbSetting.Name}(thread-{Thread.CurrentThread.ManagedThreadId}):\n  Namespace: {e.EntityType.FullName} \nElapsedTime: {e.ElapsedMilliseconds}ms \n        SQL: {e.Sql}");
                     };
                     //审计
                     fsql.Aop.AuditValue += (s, e) =>
@@ -84,7 +84,7 @@ namespace PiPlayer.DependencyInjection
                 });
                 if (!registerResult)
                 {
-                    throw new Exception($"Register db '{connectionString.Name}' failed.");
+                    throw new Exception($"Register db '{dbSetting.Name}' failed.");
                 }
 
                 //注入
@@ -107,7 +107,7 @@ namespace PiPlayer.DependencyInjection
         /// </summary>
         /// <param name="app"></param>
         /// <returns></returns>
-        public static IApplicationBuilder UseDbSeed(this IApplicationBuilder app)
+        public static IApplicationBuilder InitializeDatabase(this IApplicationBuilder app)
         {
             IdleBus<IFreeSql> ib = app.ApplicationServices.GetRequiredService<IdleBus<IFreeSql>>();
             if (ib == null)
@@ -120,6 +120,10 @@ namespace PiPlayer.DependencyInjection
             ILogger logger = loggerFactory.CreateLogger(nameof(RegisterDatabase));
             //获取所有的连接字符串
             DbConnectionStringNode connectionString = GetConnectionStrings(config);
+            if (!connectionString.AutoSyncStructure)
+            {
+                return app;
+            }
             //配置文件中开启了初始化数据库，并开启了开发者模式
             if (!IsAutoSyncStructure(connectionString, env))
             {
@@ -223,17 +227,17 @@ namespace PiPlayer.DependencyInjection
         /// <exception cref="Exception"></exception>
         private static DbConnectionStringNode GetConnectionStrings(ConfigManager config)
         {
-            string connectionString = config.AppSettings.DbConnectionString;
-            if (string.IsNullOrWhiteSpace(connectionString))
+            var dbSetting = config.AppSettings.Database;
+            if (string.IsNullOrWhiteSpace(dbSetting.ConnectionString))
             {
                 throw new Exception("Can not get connect string from app setting.");
             }
             return new DbConnectionStringNode()
             {
-                Name = "Sqlite",
-                DbType = FreeSql.DataType.Sqlite,
-                ConnectionString = connectionString,
-                AutoSyncStructure = true,
+                Name = dbSetting.Name,
+                DbType = dbSetting.Type,
+                ConnectionString = dbSetting.ConnectionString,
+                AutoSyncStructure = dbSetting.AutoSyncStructure,
             };
         }
     }

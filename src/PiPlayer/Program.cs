@@ -92,7 +92,7 @@ namespace PiPlayer
             }
 
             //初始化数据库
-            app.UseDbSeed();
+            app.InitializeDatabase();
 
             //跨域
             app.UseCors(GlobalConfigConstant.DefaultOriginsName);
