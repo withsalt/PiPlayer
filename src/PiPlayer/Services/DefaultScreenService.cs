@@ -261,7 +261,7 @@ namespace PiPlayer.Services
             }
             if (!hasAddress)
             {
-                showText.AppendLine(pre + "没有可访问地址！");
+                showText.AppendLine(pre + "没有可供外部访问的地址！");
             }
             return showText.ToString();
         }
@@ -322,9 +322,9 @@ namespace PiPlayer.Services
                 throw new Exception("Can not get current app endpoint.");
             }
             var pattern = @"^(?<scheme>https?):\/\/((\+)|(\*)|\[::\]|(0.0.0.0))(?=[\:\/]|$)";
-            foreach (var endpoint in address)
+            for (int i = 0; i < address.Length; i++)
             {
-                Match match = Regex.Match(endpoint, pattern);
+                Match match = Regex.Match(address[i], pattern);
                 if (!match.Success)
                 {
                     continue;
@@ -334,9 +334,13 @@ namespace PiPlayer.Services
                 {
                     continue;
                 }
-                var uri = Regex.Replace(endpoint, pattern, "${scheme}://127.0.0.1");
+                var uri = Regex.Replace(address[i], pattern, "${scheme}://127.0.0.1");
                 Uri httpEndpoint = new Uri(uri, UriKind.Absolute);
                 return new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port).ToString().TrimEnd('/');
+            }
+            if(address.Length > 0)
+            {
+                return address[0];
             }
             return null;
         }
