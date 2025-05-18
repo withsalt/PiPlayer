@@ -12,34 +12,54 @@
 
 ### 教程
 #### 安装mpv、ffmpeg
-windows x64平台中内置了mpv和ffmpeg，其他平台需要安装对应的mpv和ffmpeg。以raspberrypi为例：  
+windows x64平台中内置了mpv和ffmpeg，其他平台需要安装对应的mpv和ffmpeg。  
+以RaspberryPi为例：  
 ```shell
 sudo apt install mpv ffmpeg
 ```
 
-#### 设置自启动
-在 /home/用户名/.config 目录下 创建文件夹`autostart`，然后把桌面应用程序放进去，就相当于你每次开机之后自动执行了桌面应用程序。  
-以树莓派用户`pi`为例，应用程序目录为：`/home/pi/apps/piplayer`  
-```shell
-mkdir ~/.config/autostart
-nano ~/.config/autostart/piplayer.desktop
+#### 安装应用程序
+本项目比较小众，且一般情况下，需要二次开发。所以没有提供发行的二进制版本，需要自行编译打包。  
+
+```
+mkdir -p ~/apps && cd ~/apps
+unzip piplayer.zip && chmod -R 755 piplayer && chmod +x piplayer/PiPlayer
 ```
 
-新增以下内容：
-```shell
-[Desktop Entry]
-Name = PiPlayer
-Type = Application
-Comment = RaspberryPi Player WebSite
-Exec = /home/pi/apps/piplayer/PiPlayer --urls "http://*:6888"
-Terminal = false
-MultipulArgs = false
-Categories = Application;
-StartupNotify = ture
-```
-注意：
-1. 替换PiPlayer可执行文件所在路径！！
-2. 不能使用systemd来托管服务，使用systemd无法调用用户态的mpv播放器。
+#### 设置自启动
+使用 systemd 服务设置自启动，systemd 是一个系统和服务管理器，可以用来管理开机启动的服务。虽然通常用于后台服务，但也可以配置启动桌面应用程序。  
+1. 创建 systemd 服务文件  
+   创建一个新的服务定义文件，例如 piplayer.service，并将其保存在 /etc/systemd/system/ 目录下：  
+   ```
+   sudo nano /etc/systemd/system/piplayer.service
+   ```
+2. 编辑服务文件  
+   在文件中添加以下内容:  
+   ```
+   [Unit]
+   Description=PiPlayer Application
+   After=graphical.target
+   Wants=network-online.target
+   
+   [Service]
+   User=pi
+   WorkingDirectory=/home/pi/apps/piplayer
+   ExecStart=sudo /home/pi/apps/piplayer/PiPlayer --urls "http://*:80"
+   Restart=on-failure
+   Environment=DISPLAY=:0
+   Environment=XAUTHORITY=/home/pi/.Xauthority
+   
+   [Install]
+   WantedBy=graphical.target
+   ```
+3. 启用并启动服务  
+   ```
+   sudo systemctl daemon-reload
+   sudo systemctl start piplayer.service
+   #设置开机自启
+   sudo systemctl enable piplayer.service
+   ```
+
 
 ### 使用
-在浏览器中打开http://<宿主机IP>:6888体验。  
+在浏览器中打开http://<宿主机IP>体验。  
