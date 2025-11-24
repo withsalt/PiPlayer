@@ -65,13 +65,10 @@ namespace PiPlayer
             builder.Services.AddDatabase();
             builder.Services.AddRepository();
 
-            builder.Services.AddMapper();
-
             builder.Services.AddHostedService<PiPlayerHostService>();
 
             // Add services to the container.
             builder.Services.AddControllersWithViews()
-                .AddRazorRuntimeCompilation()
                 .AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.ContractResolver = new DefaultContractResolver();
