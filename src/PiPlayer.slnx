@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="PiPlayer.AspNetCore.FFMpeg/PiPlayer.AspNetCore.FFMpeg.csproj" />
+  <Project Path="PiPlayer/PiPlayer.csproj" />
+</Solution>
